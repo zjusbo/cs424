@@ -1,0 +1,100 @@
+q1.1
+Repeat for 8 times. Wallclock time is 0.130742.
+q1.2
+Repeat for 16 times. Wallclock time is 0.114974.
+q1.3
+Repeat for 16 times. Wallclock time is 0.114965.
+q1.4
+Repeat for 32 times. Wallclock time is 0.114969.
+q2.1
+Repeat for 524288 times. Wallclock time is 0.128251.Argv is 3.
+Repeat for 262144 times. Wallclock time is 0.143422.Argv is 4.
+Repeat for 131072 times. Wallclock time is 0.138528.Argv is 5.
+Repeat for 131072 times. Wallclock time is 0.177852.Argv is 6.
+Repeat for 65536 times. Wallclock time is 0.180409.Argv is 7.
+Repeat for 32768 times. Wallclock time is 0.173993.Argv is 8.
+Repeat for 16384 times. Wallclock time is 0.196692.Argv is 9.
+Repeat for 4096 times. Wallclock time is 0.100949.Argv is 10.
+Repeat for 2048 times. Wallclock time is 0.106661.Argv is 11.
+Repeat for 1024 times. Wallclock time is 0.111609.Argv is 12.
+Repeat for 512 times. Wallclock time is 0.113920.Argv is 13.
+Repeat for 256 times. Wallclock time is 0.121462.Argv is 14.
+Repeat for 128 times. Wallclock time is 0.126771.Argv is 15.
+Repeat for 64 times. Wallclock time is 0.132751.Argv is 16.
+Repeat for 32 times. Wallclock time is 0.141232.Argv is 17.
+Repeat for 16 times. Wallclock time is 0.149198.Argv is 18.
+Repeat for 8 times. Wallclock time is 0.155950.Argv is 19.
+Repeat for 4 times. Wallclock time is 0.164449.Argv is 20.
+Repeat for 2 times. Wallclock time is 0.172209.Argv is 21.
+Repeat for 1 times. Wallclock time is 0.180731.Argv is 22.
+Repeat for 1 times. Wallclock time is 0.379868.Argv is 23.
+Repeat for 1 times. Wallclock time is 0.797357.Argv is 24.
+q2.2
+Repeat for 8388608 times. Wallclock time is 0.104122.Argv is 3.
+Repeat for 8388608 times. Wallclock time is 0.200025.Argv is 4.
+Repeat for 4194304 times. Wallclock time is 0.186414.Argv is 5.
+Repeat for 1048576 times. Wallclock time is 0.123629.Argv is 6.
+Repeat for 524288 times. Wallclock time is 0.126811.Argv is 7.
+Repeat for 262144 times. Wallclock time is 0.131249.Argv is 8.
+Repeat for 131072 times. Wallclock time is 0.136885.Argv is 9.
+Repeat for 65536 times. Wallclock time is 0.143285.Argv is 10.
+Repeat for 32768 times. Wallclock time is 0.150215.Argv is 11.
+Repeat for 16384 times. Wallclock time is 0.158969.Argv is 12.
+Repeat for 8192 times. Wallclock time is 0.182483.Argv is 13.
+Repeat for 2048 times. Wallclock time is 0.101617.Argv is 14.
+Repeat for 1024 times. Wallclock time is 0.106611.Argv is 15.
+Repeat for 512 times. Wallclock time is 0.117914.Argv is 16.
+Repeat for 128 times. Wallclock time is 0.100327.Argv is 17.
+Repeat for 64 times. Wallclock time is 0.149656.Argv is 18.
+Repeat for 32 times. Wallclock time is 0.154980.Argv is 19.
+Repeat for 16 times. Wallclock time is 0.161908.Argv is 20.
+Repeat for 8 times. Wallclock time is 0.170403.Argv is 21.
+Repeat for 4 times. Wallclock time is 0.177009.Argv is 22.
+Repeat for 2 times. Wallclock time is 0.188449.Argv is 23.
+Repeat for 1 times. Wallclock time is 0.195128.Argv is 24.
+q2.3
+Repeat for 8388608 times. Wallclock time is 0.106884.Argv is 3.
+Repeat for 8388608 times. Wallclock time is 0.200107.Argv is 4.
+Repeat for 4194304 times. Wallclock time is 0.190442.Argv is 5.
+Repeat for 2097152 times. Wallclock time is 0.196599.Argv is 6.
+Repeat for 524288 times. Wallclock time is 0.102140.Argv is 7.
+Repeat for 262144 times. Wallclock time is 0.106136.Argv is 8.
+Repeat for 131072 times. Wallclock time is 0.111602.Argv is 9.
+Repeat for 65536 times. Wallclock time is 0.133016.Argv is 10.
+Repeat for 32768 times. Wallclock time is 0.136557.Argv is 11.
+Repeat for 16384 times. Wallclock time is 0.147439.Argv is 12.
+Repeat for 8192 times. Wallclock time is 0.182241.Argv is 13.
+Repeat for 4096 times. Wallclock time is 0.198519.Argv is 14.
+Repeat for 1024 times. Wallclock time is 0.104433.Argv is 15.
+Repeat for 512 times. Wallclock time is 0.111113.Argv is 16.
+Repeat for 128 times. Wallclock time is 0.100084.Argv is 17.
+Repeat for 64 times. Wallclock time is 0.139771.Argv is 18.
+Repeat for 32 times. Wallclock time is 0.149987.Argv is 19.
+Repeat for 16 times. Wallclock time is 0.157381.Argv is 20.
+Repeat for 8 times. Wallclock time is 0.162865.Argv is 21.
+Repeat for 4 times. Wallclock time is 0.171018.Argv is 22.
+Repeat for 2 times. Wallclock time is 0.180446.Argv is 23.
+Repeat for 1 times. Wallclock time is 0.186326.Argv is 24.
+q2.4
+Repeat for 16777216 times. Wallclock time is 0.142463.Argv is 3.
+Repeat for 8388608 times. Wallclock time is 0.126041.Argv is 4.
+Repeat for 8388608 times. Wallclock time is 0.200081.Argv is 5.
+Repeat for 2097152 times. Wallclock time is 0.100638.Argv is 6.
+Repeat for 2097152 times. Wallclock time is 0.197236.Argv is 7.
+Repeat for 1048576 times. Wallclock time is 0.199291.Argv is 8.
+Repeat for 262144 times. Wallclock time is 0.104991.Argv is 9.
+Repeat for 131072 times. Wallclock time is 0.198972.Argv is 10.
+Repeat for 65536 times. Wallclock time is 0.191654.Argv is 11.
+Repeat for 16384 times. Wallclock time is 0.113423.Argv is 12.
+Repeat for 8192 times. Wallclock time is 0.154089.Argv is 13.
+Repeat for 4096 times. Wallclock time is 0.163936.Argv is 14.
+Repeat for 2048 times. Wallclock time is 0.172598.Argv is 15.
+Repeat for 1024 times. Wallclock time is 0.186928.Argv is 16.
+Repeat for 256 times. Wallclock time is 0.164215.Argv is 17.
+Repeat for 64 times. Wallclock time is 0.120433.Argv is 18.
+Repeat for 32 times. Wallclock time is 0.128577.Argv is 19.
+Repeat for 16 times. Wallclock time is 0.132625.Argv is 20.
+Repeat for 8 times. Wallclock time is 0.141403.Argv is 21.
+Repeat for 4 times. Wallclock time is 0.146868.Argv is 22.
+Repeat for 2 times. Wallclock time is 0.155078.Argv is 23.
+Repeat for 1 times. Wallclock time is 0.163370.Argv is 24.
