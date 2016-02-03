@@ -1,10 +1,15 @@
+/**
+ * Author: Bo Song
+ * Title: CPSC424 Lab1
+ * Date: 02/02/2016
+ **/
 #include <stdio.h>
 #include <time.h>
 
 extern int dummy();
 extern void timing(double*, double*);
-extern void run(void *);
-extern void init(void *); 
+extern void run(void *); // kernal benchmark function
+extern void init(void *);  // init benchmark environment 
 
 int main(int argc, char ** argv){
   int repeat = 1;
@@ -18,7 +23,7 @@ int main(int argc, char ** argv){
     for(int r = 0; r < repeat; ++r){
       //kern code
       run((void*)argv);
-      if (t < 1000) dummy();
+      if (t < 1000) dummy(); // foo the compiler
     }
     timing(&wce, &ct);
     runtime = wce - wcs;

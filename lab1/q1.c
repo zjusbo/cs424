@@ -1,3 +1,8 @@
+/**
+ * Author: Bo Song
+ * Title: CSPS 424/524
+ * Date: 02/02/2016
+ **/
 #include <stdio.h>
 #include <stdlib.h>
 
