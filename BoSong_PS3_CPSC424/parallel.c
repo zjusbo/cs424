@@ -6,7 +6,11 @@
 #include "mpi.h"
 #include "timing.h"
 
-main(int argc, char **argv ) {
+
+int calBlockLen(int row_col_idx, int block_size);
+void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size);
+
+int main(int argc, char **argv ) {
 
   /*
     This is the Hello World program for CPSC424/524.
@@ -19,19 +23,31 @@ main(int argc, char **argv ) {
              had a similar communication pattern, but did not include any simulated work.
   */
 
-  char message[100];
   int i,rank, size, type=99; 
-  int worktime, sparm, rwork(int,int);
+  int worktime;
   double wct0, wct1, total_time, cput;
+  if(argc < 2){
+    printf("Please provide the size N of matrix.\n");
+    return -1;
+  } 
+
+  int N, i, j, k, run;
+  double *A, *B, *C;
+  int sizeAB, sizeC, iA, iB, iC;
+  
+  // 1000,2000,4000,8000,12000
+  N = atoi(argv[1]); // size of the matrix
 
   MPI_Status status;
 
   MPI_Init(&argc,&argv); // Required MPI initialization call
 
-  MPI_Comm_size(MPI_COMM_WORLD,&size); // Get no. of processes
+  MPI_Comm_size(MPI_COMM_WORLD,&num_nodes); // Get no. of processes
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); // Which process am I?
+  
+  int block_size = N / num_nodes;
+  
   /* If I am the master (rank 0) ... */
-  char msg_buf[size + 1][100];
   if (rank == 0) {
     /** Master's work
      * 1. partition A into p rows
@@ -43,34 +59,80 @@ main(int argc, char **argv ) {
      *       collect result from node i
      * 5. merge results to build matrix C
      **/
-    sparm = rwork(0,0); //initialize the workers' work times
-    
-    /* Create the message using sprintf */
-    sprintf(message, "Hello, from process %d.",rank);
 
+    sizeAB = N*(N+1)/2; //Only enough space for the nonzero portions of the matrices
+    sizeC = N*N; // All of C will be nonzero, in general!
+
+    A = (double *) calloc(sizeAB, sizeof(double)); 
+    B = (double *) calloc(sizeAB, sizeof(double)); 
+    C = (double *) calloc(sizeC, sizeof(double));
+  
+    srand(12345); // Use a standard seed value for reproducibility
+
+    // This assumes A is stored by rows, and B is stored by columns. Other storage schemes are permitted
+    for (i=0; i<sizeAB; i++) A[i] = ((double) rand()/(double)RAND_MAX);
+    for (i=0; i<sizeAB; i++) B[i] = ((double) rand()/(double)RAND_MAX);
+
+    /* Create the message using sprintf */
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting timer
+    
     //wct0 = MPI_Wtime(); //set the start time
     timing(&wct0, &cput); //set the start time
 
-    /* Send the message to all the workers, which is where the work happens */
-    for (i=1; i<size; i++) {
-      MPI_Send(message, strlen(message)+1, MPI_CHAR, i, type, MPI_COMM_WORLD);
-      MPI_Send(&sparm, 1, MPI_INT, i, type, MPI_COMM_WORLD);
+    /* Send the permanent row to all the workers, which is where the work happens */
+    for (i = 1; i < num_nodes; i++) {
+      int row_idx = i * block_size;
+      iA = row_idx * (row_idx + 1) / 2; // initializes row pointer in A
+      // length of flattened block 
+      int len = calBlockLen(row_idx, block_size); //gaussian formula
+      
+      MPI_Send(&N, 1, MPI_ INT, i, type, MPI_COMM_WORLD); // send size of matrix
+      MPI_Send(A + iA, len, MPI_DOUBLE, i, type, MPI_COMM_WORLD); // send permanent row to worker
     } 
 
-    //wct1 = MPI_Wtime(); // Get total elapsed time
-    for(i = 1; i < size; i++){
-      MPI_Recv(message, 100, MPI_CHAR, MPI_ANY_SOURCE, type, MPI_COMM_WORLD, &status);
-      strcpy(msg_buf[status.MPI_SOURCE], message);
-      sleep(3);
+    /*Send column flow to all workers*/
+    for (i = 1; i < num_nodes; i++) {
+      int col_idx = i * block_size;
+      iB = col_idx * (col_idx + 1) / 2; // initializes col pointer in B
+      int len = calBlockLen(col_idx, block_size); //gaussian formula
+
+      MPI_Send(&col_idx, 1, MPI_INT, i, type, MPI_COMM_WORLD);
+      MPI_Send(B + iB, len, MPI_DOUBLE, i, type, MPI_COMM_WORLD);
+    }    
+    //compute results
+    double * row = A, * col = B;
+    int col_idx = 0;
+    int row_idx = 0;
+    int row_len = calBlockLen(row_idx, block_size); //gaussian formula
+    int col_len = calBlockLen(col_idx, block_size);
+
+    //send col to next node, recv col from prev node
+    for(i = 1; i < num_nodes; i++){
+      // send col_idx and col data to next node
+      MPI_Send(&col_idx, 1, MPI_INT, rank + 1, type, MPI_COMM_WORLD);
+      MPI_Send(col, col_len, MPI_DOUBLE, rank + 1, type, MPI_COMM_WORLD);
+      
+      // recv col_idx and col data from prev node
+      MPI_Recv(&col_idx, 1, MPI_INT, num_nodes - 1, type, MPI_COMM_WORLD, &status);
+      col_len = calBlockLen(col_idx, block_size);
+      MPI_Recv(col, col_len, MPI_DOUBLE, num_nodes - 1, type, MPI_COMM_WORLD, &status);
+      // C is a row block
+      block_matmul(row, col, C, row_idx, col_idx, block_size);
     }
-    for(i = 1; i < size; i++){
-      printf("Message from process %d: %s\n", i, msg_buf[i]);
+    // collect results from workers
+    for(i = 1; i < num_nodes; i++){
+      int row_idx = block_size * i;
+      MPI_Recv(C + N * row_idx, block_size * N, MPI_DOUBLE, i, type, MPI_COMM_WORLD, &status);
     }
+
+
     timing(&wct1, &cput); //get the end time
     total_time = wct1 - wct0;
     printf("Message printed by master: Total elapsed time is %f seconds.\n",total_time);
 
+    free(A);
+    free(B);
+    free(C);    
   }
 
   /* Otherwise, if I am a worker ... */
@@ -100,4 +162,13 @@ main(int argc, char **argv ) {
   }
 
   MPI_Finalize(); // Required MPI termination call
+}
+
+int calBlockLen(int row_col_idx, int block_size){
+  return (row_col_idx + 1 + row_col_idx + 1 + block_size - 1) * block_size / 2;
+}
+
+
+void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size){
+
 }
