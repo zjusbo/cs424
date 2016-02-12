@@ -16,7 +16,8 @@ int main(int argc, char **argv ) {
   int rank, size, type=99;
   int num_nodes; 
   int worktime;
-  double wct0, wct1, total_time, cput;
+  double wct0, wct1, wct_comp0, wct_comp1, total_comp_time, cput;
+  double wct_comm0, wct_comm1, total_comm_time, total_time;
   if(argc < 2){
     printf("Please provide the size N of matrix.\n");
     return -1;
@@ -37,7 +38,7 @@ int main(int argc, char **argv ) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); // Which process am I?
   
   int block_size = N / num_nodes;
-  
+  total_comm_time = total_comp_time = 0;
   /* If I am the master (rank 0) ... */
   if (rank == 0) {
     /** Master's work
@@ -67,8 +68,8 @@ int main(int argc, char **argv ) {
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting timer
     
     //wct0 = MPI_Wtime(); //set the start time
-    timing(&wct0, &cput); //set the start time
-
+    timing(&wct_comm0, &cput); //set the start time
+    wct0 = wct_comm0;
     /* Send the permanent row to all the workers, which is where the work happens */
     for (i = 1; i < num_nodes; i++) {
       int row_idx = i * block_size;
@@ -89,6 +90,9 @@ int main(int argc, char **argv ) {
       MPI_Send(&col_idx, 1, MPI_INT, i, type, MPI_COMM_WORLD);
       MPI_Send(B + iB, len, MPI_DOUBLE, i, type, MPI_COMM_WORLD);
     }    
+    timing(&wct_comm1, &cput);
+    total_comm_time += wct_comm1 - wct_comm0;
+    wct_comp0 = wct_comm1;
     //compute results
     double * row = A, * col = B;
     int col_idx = 0;
@@ -97,9 +101,13 @@ int main(int argc, char **argv ) {
     int col_len = calBlockLen(col_idx, block_size);
     
     block_matmul(row, col, C, row_idx, col_idx, block_size, N);
-    
+
+    timing(&wct_comp1, &cput);
+    total_comp_time += wct_comp1 - wct_comp0;
+    wct_comm0 = wct_comp1;
     //send col to next node, recv col from prev node
     for(i = 1; i < num_nodes; i++){
+      
       // send col_idx and col data to next node
       MPI_Send(&col_idx, 1, MPI_INT, rank + 1, type, MPI_COMM_WORLD);
       MPI_Send(col, col_len, MPI_DOUBLE, rank + 1, type, MPI_COMM_WORLD);
@@ -109,17 +117,24 @@ int main(int argc, char **argv ) {
       col_len = calBlockLen(col_idx, block_size);
       MPI_Recv(col, col_len, MPI_DOUBLE, num_nodes - 1, type, MPI_COMM_WORLD, &status);
       // C is a row block
+      timing(&wct_comm1, &cput);
+      total_comm_time += wct_comm1 - wct_comm0;
+      wct_comp0 = wct_comm1;
       block_matmul(row, col, C, row_idx, col_idx, block_size, N);
+      timing(&wct_comp1, &cput);
+      total_comp_time += wct_comp1 - wct_comp0;
+      wct_comm0 = wct_comp1;
     }
     // collect results from workers
     for(i = 1; i < num_nodes; i++){
       int row_idx = block_size * i;
       MPI_Recv(C + N * row_idx, block_size * N, MPI_DOUBLE, i, type, MPI_COMM_WORLD, &status);
     }
-
-    timing(&wct1, &cput); //get the end time
+    timing(&wct_comm1, &cput);
+    total_comm_time += wct_comm1 - wct_comm0;
+    wct1 = wct_comm1;
     total_time = wct1 - wct0;
-    printf("Message printed by master: Total elapsed time is %f seconds.\n",total_time);
+    printf("Message printed by master: Total elapsed time: %f s. Communication time: %f s. Computation time: %f s\n", total_time, total_comm_time, total_comp_time);
 
     free(A);
     free(B);
