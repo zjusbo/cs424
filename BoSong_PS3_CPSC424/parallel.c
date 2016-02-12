@@ -94,7 +94,7 @@ int main(int argc, char **argv ) {
       MPI_Send(&col_idx, 1, MPI_INT, i, type, MPI_COMM_WORLD);
       printf("Process %d sent to process %d: col_idx = %d.\n", rank, i, col_idx);
       MPI_Send(B + iB, len, MPI_DOUBLE, i, type, MPI_COMM_WORLD);
-      printf("Process %d sent to process %d: col addr = %p, len = %d.\n", rank, i, B + iB, col_len);
+      printf("Process %d sent to process %d: col addr = %p, len = %d.\n", rank, i, B + iB, len);
     }    
     timing(&wct_comm1, &cput);
     total_comm_time += wct_comm1 - wct_comm0;
