@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -l procs=4,tpn=4,mem=68gb
-#PBS -l walltime=5:00
-#PBS -N Task3
+#PBS -l walltime=15:00
+#PBS -N Mulmatrix
 #PBS -r n
 #PBS -j oe
 #PBS -q cpsc424

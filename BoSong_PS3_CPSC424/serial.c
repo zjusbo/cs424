@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   double *A, *B, *C;
   int sizeAB, sizeC, iA, iB, iC;
 
-  int sizes[5]={1000,2000,4000,8000,12000};
+  int sizes[] ={10,2000,4000,8000,12000};
 
   double wctime;
 
@@ -39,7 +39,6 @@ int main(int argc, char **argv) {
     // This assumes A is stored by rows, and B is stored by columns. Other storage schemes are permitted
     for (i=0; i<sizeAB; i++) A[i] = ((double) rand()/(double)RAND_MAX);
     for (i=0; i<sizeAB; i++) B[i] = ((double) rand()/(double)RAND_MAX);
-
     wctime = matmul(N, A, B, C);
 
     printf ("  %5d    %9.4f\n", N, wctime);
