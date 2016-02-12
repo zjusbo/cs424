@@ -51,7 +51,7 @@ int main(int argc, char **argv ) {
      *       collect result from node i
      * 5. merge results to build matrix C
      **/
-
+    printf("Master Process: N = %d, num_nodes = %d, rank = %d, block_size = %d.\n", N, num_nodes, rank, block_size);
     sizeAB = N*(N+1)/2; //Only enough space for the nonzero portions of the matrices
     sizeC = N*N; // All of C will be nonzero, in general!
 
@@ -156,6 +156,7 @@ int main(int argc, char **argv ) {
      * 6. send result to node 0
      *
      **/
+    printf("Slave Process: N = %d, num_nodes = %d, rank = %d, block_size = %d.\n", N, num_nodes, rank, block_size);
     int row_len;
     int col_idx, col_len;
     int row_idx = block_size * rank;
