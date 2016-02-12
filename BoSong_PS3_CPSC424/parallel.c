@@ -78,8 +78,6 @@ int main(int argc, char **argv ) {
       // length of flattened block 
       int len = calBlockLen(row_idx, block_size); //gaussian formula
       
-      MPI_Send(&N, 1, MPI_INT, i, type, MPI_COMM_WORLD); // send size of matrix
-      printf("Process %d sent N to process %d.\n", rank, i);
       MPI_Send(A + iA, len, MPI_DOUBLE, i, type, MPI_COMM_WORLD); // send permanent row to worker
       printf("Process %d sent row data to process %d.\n", rank, i);
       printf("Process %d: row addr = %p, len = %d, row_idx = %d.\n", rank, A + iA, len, row_idx);
@@ -175,29 +173,29 @@ int main(int argc, char **argv ) {
     int col_idx, col_len;
     int row_idx = block_size * rank;
     row_len = calBlockLen(row_idx, block_size);
-  
+    double * buf;
     sizeAB = N*(N+1)/2; //Only enough space for the nonzero portions of the matrices
     sizeC = N*N; // All of C will be nonzero, in general!
 
     A = (double *) calloc(sizeAB, sizeof(double)); 
     B = (double *) calloc(sizeAB, sizeof(double)); 
     C = (double *) calloc(sizeC, sizeof(double));
-  
+    buf = (double *) calloc(sizeAB, sizeof(double));
+
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting
     printf("Process %d is behind Barrier now.\n", rank);
     /* Receive permanent row from the master */
-    MPI_Recv(&N, 1, MPI_INT, 0, type, MPI_COMM_WORLD, &status); // recv size of matrix
     
     printf("Process %d recved from process %d: N = %d.\n", rank, 0, N);
     MPI_Recv(A, row_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status); // recv permanent row from master
-    printf("Process %d recved from process %d: A = %p, row_len = %d.\n", rank, 0, A, row_len);
+    printf("Process %d recved from process %d: A = %p, row_len = %d.\n", rank, 0, A, status.MPI_Get_count);
     
     /* Receive first column from master*/
     MPI_Recv(&col_idx, 1, MPI_INT, 0, type, MPI_COMM_WORLD, &status);
     printf("Process %d recved from process %d: col_idx = %d.\n", rank, 0, col_idx);
     col_len = calBlockLen(col_idx, block_size);
     MPI_Recv(B, col_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status);
-    printf("Process %d recved from process %d: col_addr = %p, col_len = %d.\n", rank, 0, B, col_len);
+    printf("Process %d recved from process %d: col_addr = %p, col_len = %d.\n", rank, 0, B, status.MPI_Get_count);
   
     // calculate result, row_idx pretend to be 0. 
     block_matmul(A, B, C, row_idx, col_idx, block_size, N);
@@ -206,20 +204,25 @@ int main(int argc, char **argv ) {
     for(i = 1; i < num_nodes; i++){
       int next_rank = rank + 1 == num_nodes? 0: rank + 1;
       int prev_rank = rank - 1;
-      
+      int new_col_idx, new_col_len;
+
+      MPI_Recv(&new_col_idx, 1, MPI_INT, prev_rank, type, MPI_COMM_WORLD, &status);
+      printf("Process %d recv from process %d: col_idx = %d.\n", rank, prev_rank, col_idx);
+
       MPI_Send(&col_idx, 1, MPI_INT, next_rank, type, MPI_COMM_WORLD);
       printf("Process %d sent to process %d: col_idx = %d.\n", rank, next_rank, col_idx);
 
-      MPI_Recv(&col_idx, 1, MPI_INT, prev_rank, type, MPI_COMM_WORLD, &status);
-      printf("Process %d recv from process %d: col_idx = %d.\n", rank, prev_rank, col_idx);
-
+      col_idx = new_col_idx;
+      new_col_len = calBlockLen(col_idx, block_size);
+      MPI_Recv(buf, new_col_len, MPI_DOUBLE, prev_rank, type, MPI_COMM_WORLD, &status); 
+      printf("Process %d recv from process %d: col_len = %d.\n", rank, prev_rank, col_len);
+      
       MPI_Send(B, col_len, MPI_DOUBLE, next_rank, type, MPI_COMM_WORLD);
       printf("Process %d sent to process %d: col_len = %d.\n", rank, next_rank, col_len);
 
-      col_len = calBlockLen(col_idx, block_size);
-      MPI_Recv(B, col_len, MPI_DOUBLE, prev_rank, type, MPI_COMM_WORLD, &status); 
-      printf("Process %d recv from process %d: col_len = %d.\n", rank, prev_rank, col_len);
-      
+      col_len = new_col_len;
+      memcpy(B, buf, sizeof(double) * col_len);
+
       block_matmul(A, B, C, row_idx, col_idx, block_size, N);
       printf("Process %d: block result computed.\n", rank);
     }
@@ -230,6 +233,7 @@ int main(int argc, char **argv ) {
     free(A);
     free(B);
     free(C);
+    free(buf);
   }
 
   MPI_Finalize(); // Required MPI termination call
