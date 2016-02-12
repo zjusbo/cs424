@@ -118,12 +118,14 @@ int main(int argc, char **argv ) {
       // send col_idx and col data to next node
       MPI_Send(&col_idx, 1, MPI_INT, rank + 1, type, MPI_COMM_WORLD);
       printf("Process %d sent to process %d: col idx = %d.\n", rank, 1, col_idx);
+
+      MPI_Recv(&col_idx, 1, MPI_INT, num_nodes - 1, type, MPI_COMM_WORLD, &status);
+      printf("Process %d recved from process %d: col idx = %d.\n", rank, num_nodes - 1, col_idx);
+
       MPI_Send(col, col_len, MPI_DOUBLE, rank + 1, type, MPI_COMM_WORLD);
       printf("Process %d sent to process %d: col addr = %p, len = %d.\n", rank, 1, col, col_len);
       
       // recv col_idx and col data from prev node
-      MPI_Recv(&col_idx, 1, MPI_INT, num_nodes - 1, type, MPI_COMM_WORLD, &status);
-      printf("Process %d recved from process %d: col idx = %d.\n", rank, num_nodes - 1, col_idx);
       col_len = calBlockLen(col_idx, block_size);
       MPI_Recv(col, col_len, MPI_DOUBLE, num_nodes - 1, type, MPI_COMM_WORLD, &status);
       printf("Process %d recved from process %d: col addr = %p, col_len = %d.\n", rank, num_nodes - 1, col, col_len);
@@ -207,11 +209,13 @@ int main(int argc, char **argv ) {
       
       MPI_Send(&col_idx, 1, MPI_INT, next_rank, type, MPI_COMM_WORLD);
       printf("Process %d sent to process %d: col_idx = %d.\n", rank, next_rank, col_idx);
-      MPI_Send(B, col_len, MPI_DOUBLE, next_rank, type, MPI_COMM_WORLD);
-      printf("Process %d sent to process %d: col_len = %d.\n", rank, next_rank, col_len);
 
       MPI_Recv(&col_idx, 1, MPI_INT, prev_rank, type, MPI_COMM_WORLD, &status);
       printf("Process %d recv from process %d: col_idx = %d.\n", rank, prev_rank, col_idx);
+
+      MPI_Send(B, col_len, MPI_DOUBLE, next_rank, type, MPI_COMM_WORLD);
+      printf("Process %d sent to process %d: col_len = %d.\n", rank, next_rank, col_len);
+
       col_len = calBlockLen(col_idx, block_size);
       MPI_Recv(B, col_len, MPI_DOUBLE, prev_rank, type, MPI_COMM_WORLD, &status); 
       printf("Process %d recv from process %d: col_len = %d.\n", rank, prev_rank, col_len);
