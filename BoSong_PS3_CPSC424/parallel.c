@@ -147,7 +147,12 @@ int main(int argc, char **argv ) {
     wct1 = wct_comm1;
     total_time = wct1 - wct0;
     printf("Message printed by master: Total elapsed time: %f s. Communication time: %f s. Computation time: %f s\n", total_time, total_comm_time, total_comp_time);
-
+    for(i = 0; i < N; i++){
+      for(j = 0; j < N; j++){
+        printf("%f ", C[i * N + j]);
+      }
+      printf("\n");
+    }
     free(A);
     free(B);
     free(C);    
