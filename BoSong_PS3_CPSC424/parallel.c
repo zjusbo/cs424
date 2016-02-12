@@ -67,6 +67,7 @@ int main(int argc, char **argv ) {
 
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting timer
     
+    printf("Process %d is behind Barrier now.\n", rank);
     //wct0 = MPI_Wtime(); //set the start time
     timing(&wct_comm0, &cput); //set the start time
     wct0 = wct_comm0;
@@ -170,7 +171,7 @@ int main(int argc, char **argv ) {
     C = (double *) calloc(sizeC, sizeof(double));
   
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting
-    
+    printf("Process %d is behind Barrier now.\n", rank);
     /* Receive permanent row from the master */
     MPI_Recv(&N, 1, MPI_INT, 0, type, MPI_COMM_WORLD, &status); // recv size of matrix
     MPI_Recv(A, row_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status); // recv permanent row from master
