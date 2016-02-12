@@ -6,22 +6,12 @@
 #include "mpi.h"
 #include "timing.h"
 
-#define MIN(x, y) x<y?x:y
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
 int calBlockLen(int row_col_idx, int block_size);
 void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size, int N);
 
 int main(int argc, char **argv ) {
-
-  /*
-    This is the Hello World program for CPSC424/524.
-
-    Author: Andrew Sherman, Yale University
-
-    Date: 9/15/2014
-
-    Credits: This program is based on a program provided by Barry Wilkinson (UNCC), which 
-             had a similar communication pattern, but did not include any simulated work.
-  */
 
   int rank, size, type=99;
   int num_nodes; 
@@ -74,7 +64,6 @@ int main(int argc, char **argv ) {
     for (i=0; i<sizeAB; i++) A[i] = ((double) rand()/(double)RAND_MAX);
     for (i=0; i<sizeAB; i++) B[i] = ((double) rand()/(double)RAND_MAX);
 
-    /* Create the message using sprintf */
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting timer
     
     //wct0 = MPI_Wtime(); //set the start time
@@ -156,6 +145,14 @@ int main(int argc, char **argv ) {
     int col_idx, col_len;
     int row_idx = block_size * rank;
     row_len = calBlockLen(row_idx, block_size);
+  
+    sizeAB = N*(N+1)/2; //Only enough space for the nonzero portions of the matrices
+    sizeC = N*N; // All of C will be nonzero, in general!
+
+    A = (double *) calloc(sizeAB, sizeof(double)); 
+    B = (double *) calloc(sizeAB, sizeof(double)); 
+    C = (double *) calloc(sizeC, sizeof(double));
+  
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting
     
     /* Receive permanent row from the master */
@@ -166,10 +163,7 @@ int main(int argc, char **argv ) {
     MPI_Recv(&col_idx, 1, MPI_INT, 0, type, MPI_COMM_WORLD, &status);
     col_len = calBlockLen(col_idx, block_size);
     MPI_Recv(B, col_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status);
-
-    // C stores the result of current process
-    C = (double*) calloc(N * block_size, sizeof(double));
-    
+  
     // calculate result, row_idx pretend to be 0. 
     block_matmul(A, B, C, row_idx, col_idx, block_size, N);
 
@@ -183,12 +177,15 @@ int main(int argc, char **argv ) {
       MPI_Recv(&col_idx, 1, MPI_INT, prev_rank, type, MPI_COMM_WORLD, &status);
       col_len = calBlockLen(col_idx, block_size);
       MPI_Recv(B, col_len, MPI_DOUBLE, prev_rank, type, MPI_COMM_WORLD, &status); 
-       
+      
       block_matmul(A, B, C, row_idx, col_idx, block_size, N);
     }
-
+    // Send result back to master node
     MPI_Send(C, N * block_size, MPI_DOUBLE, 0, type, MPI_COMM_WORLD);
-
+    
+    free(A);
+    free(B);
+    free(C);
   }
 
   MPI_Finalize(); // Required MPI termination call
