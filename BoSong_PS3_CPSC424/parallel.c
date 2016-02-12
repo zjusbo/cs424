@@ -31,7 +31,7 @@ int main(int argc, char **argv ) {
     return -1;
   } 
 
-  int N, i, j, k, run;
+  int N, i, j, k;
   double *A, *B, *C;
   int sizeAB, sizeC, iA, iB, iC;
   
@@ -105,7 +105,9 @@ int main(int argc, char **argv ) {
     int row_idx = 0;
     int row_len = calBlockLen(row_idx, block_size); //gaussian formula
     int col_len = calBlockLen(col_idx, block_size);
-
+    
+    block_matmul(row, col, C, row_idx, col_idx, block_size);
+    
     //send col to next node, recv col from prev node
     for(i = 1; i < num_nodes; i++){
       // send col_idx and col data to next node
@@ -124,7 +126,6 @@ int main(int argc, char **argv ) {
       int row_idx = block_size * i;
       MPI_Recv(C + N * row_idx, block_size * N, MPI_DOUBLE, i, type, MPI_COMM_WORLD, &status);
     }
-
 
     timing(&wct1, &cput); //get the end time
     total_time = wct1 - wct0;
@@ -150,15 +151,43 @@ int main(int argc, char **argv ) {
      * 6. send result to node 0
      *
      **/
+    int row_len;
+    int col_idx, col_len;
+    int row_idx = block_size * rank;
+    row_len = calBlockLen(row_idx, block_size);
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting
-  /* Receive messages from the master */
-    MPI_Recv(message, 100, MPI_CHAR, 0, type, MPI_COMM_WORLD, &status);
-    MPI_Recv(&sparm, 1, MPI_INT, 0, type, MPI_COMM_WORLD, &status);
+    
+    /* Receive permanent row from the master */
+    MPI_Recv(&N, 1, MPI_INT, 0, type, MPI_COMM_WORLD); // recv size of matrix
+    MPI_Recv(A, row_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD); // recv permanent row from master
+    
+    /* Receive first column from master*/
+    MPI_Recv(&col_idx, 1, MPI_INT, 0, type, MPI_COMM_WORLD);
+    col_len = calBlockLen(col_idx, block_size);
+    MPI_Recv(B, col_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD);
 
-    worktime = rwork(rank,sparm); // Simulate some work
-    sprintf(message, "Hello master, from process %d after working %d seconds.",
-	   rank, worktime);
-    MPI_Send(message, strlen(message) + 1, MPI_CHAR, 0, type, MPI_COMM_WORLD);
+    // C stores the result of current process
+    C = (double*) calloc(N * block_size, sizeof(double));
+    
+    // calculate result, row_idx pretend to be 0. 
+    block_matmul(A, B, C, row_idx, col_idx, block_size);
+
+    for(i = 1; i < num_nodes; i++){
+      int next_rank = rank + 1 == num_nodes? 0: rank + 1;
+      int prev_rank = rank - 1;
+      
+      MPI_Send(&col_idx, 1, MPI_INT, next_rank, type, MPI_COMM_WORLD);
+      MPI_Send(B, col_len, MPI_DOUBLE, next_rank, type, MPI_COMM_WORLD);
+
+      MPI_Recv(&col_idx, 1, MPI_INT, prev_rank, type, MPI_COMM_WORLD);
+      col_len = calBlockLen(col_idx, block_size);
+      MPI_Recv(B, col_len, MPI_DOUBLE, prev_rank, type, MPI_COMM_WORLD); 
+       
+      block_matmul(A, B, C, row_idx, col_idx, block_size);
+    }
+
+    MPI_Send(C, N * block_size, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status);
+
   }
 
   MPI_Finalize(); // Required MPI termination call
@@ -168,7 +197,19 @@ int calBlockLen(int row_col_idx, int block_size){
   return (row_col_idx + 1 + row_col_idx + 1 + block_size - 1) * block_size / 2;
 }
 
-
-void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size){
-
+/**
+ * Calculate block multiplication row * col and store the result in C
+ * 
+ **/
+void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size, int N){
+  int iC, i, iA, iB, j, k;
+  for (i = 0; i < block_size; i++) {
+    iC = i * N + col_idx;
+    iA = i * (row_idx + 1 + (row_idx + i)) / 2; // initializes row pointer in A
+    for (j = 0; j < block_size; j++, iC++) {
+      iB = j * (col_idx + 1 + (col_idx + j)) / 2; // initializes column pointer in B
+      C[iC] = 0.;
+      for (k = 0; k <= MIN(i + row_idx, j + col_idx); k++) C[iC] += A[iA+k] * B[iB+k]; // avoids using known-0 entries 
+    }
+  }
 }
