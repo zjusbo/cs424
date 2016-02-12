@@ -188,14 +188,14 @@ int main(int argc, char **argv ) {
     
     printf("Process %d recved from process %d: N = %d.\n", rank, 0, N);
     MPI_Recv(A, row_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status); // recv permanent row from master
-    printf("Process %d recved from process %d: A = %p, row_len = %d.\n", rank, 0, A, status.MPI_Get_count);
+    printf("Process %d recved from process %d: A = %p, row_len = %d.\n", rank, 0, A, row_len);
     
     /* Receive first column from master*/
     MPI_Recv(&col_idx, 1, MPI_INT, 0, type, MPI_COMM_WORLD, &status);
     printf("Process %d recved from process %d: col_idx = %d.\n", rank, 0, col_idx);
     col_len = calBlockLen(col_idx, block_size);
     MPI_Recv(B, col_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status);
-    printf("Process %d recved from process %d: col_addr = %p, col_len = %d.\n", rank, 0, B, status.MPI_Get_count);
+    printf("Process %d recved from process %d: col_addr = %p, col_len = %d.\n", rank, 0, B, col_len);
   
     // calculate result, row_idx pretend to be 0. 
     block_matmul(A, B, C, row_idx, col_idx, block_size, N);
