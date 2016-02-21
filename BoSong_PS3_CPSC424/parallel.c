@@ -204,7 +204,7 @@ int main(int argc, char **argv ) {
     //printf("Process %d recved from process %d: col_addr = %p, col_len = %d.\n", rank, 0, B, col_len);
     timing(&wct_comm1, &cput); //set the start time
     total_comm_time += wct_comm1 - wct_comm0;
-    wct_comp0 = wctcomm1;
+    wct_comp0 = wct_comm1;
     // calculate result, row_idx pretend to be 0. 
     block_matmul(A, B, C, row_idx, col_idx, block_size, N);
     //printf("Process %d: Computer first block completed.\n", rank);
