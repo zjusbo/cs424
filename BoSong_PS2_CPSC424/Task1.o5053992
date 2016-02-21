@@ -1,0 +1,47 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/BoSong_PS2_CPSC424
+compute-20-1
+compute-20-1
+compute-14-16
+compute-14-16
+compute-14-15
+compute-14-15
+--------------------------------------------------------------------------
+mpiexec was unable to launch the specified application as it could not find an executable:
+
+Executable: task1
+Node: compute-20-1.local
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+4 total processes failed to start
+
+real	0m1.384s
+user	0m0.010s
+sys	0m0.024s
+--------------------------------------------------------------------------
+mpiexec was unable to launch the specified application as it could not find an executable:
+
+Executable: task1
+Node: compute-20-1.local
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+4 total processes failed to start
+
+real	0m0.096s
+user	0m0.009s
+sys	0m0.018s
+--------------------------------------------------------------------------
+mpiexec was unable to launch the specified application as it could not find an executable:
+
+Executable: task1
+Node: compute-20-1.local
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+4 total processes failed to start
+
+real	0m0.106s
+user	0m0.005s
+sys	0m0.021s

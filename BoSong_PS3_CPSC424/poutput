@@ -1,0 +1,27 @@
+/home/fas/cpsc424/bs744/cs424/BoSong_PS3_CPSC424
+/lustre/home/client/fas/cpsc424/bs744/cs424/BoSong_PS3_CPSC424
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+p = 1, N = 1000
+Message printed by master: Total elapsed time: 0.182767 s. Communication time: 0.000009 s. Computation time: 0.182758 s
+p = 1, N = 2000
+Message printed by master: Total elapsed time: 2.274368 s. Communication time: 0.000010 s. Computation time: 2.274358 s
+p = 1, N = 4000
+Message printed by master: Total elapsed time: 23.020455 s. Communication time: 0.000011 s. Computation time: 23.020444 s
+p = 1, N = 8000
+Message printed by master: Total elapsed time: 227.135002 s. Communication time: 0.000010 s. Computation time: 227.134992 s
+p = 1, N = 12000
+Message printed by master: Total elapsed time: 559.659975 s. Communication time: 0.000010 s. Computation time: 559.659965 s
+p = 2, N = 1000
+Message printed by master: Total elapsed time: 0.126665 s. Communication time: 0.066443 s. Computation time: 0.060222 s
+p = 2, N = 2000
+Message printed by master: Total elapsed time: 1.482056 s. Communication time: 0.933520 s. Computation time: 0.548536 s
+p = 2, N = 4000
+Message printed by master: Total elapsed time: 13.397069 s. Communication time: 7.375196 s. Computation time: 6.021873 s
+p = 2, N = 8000

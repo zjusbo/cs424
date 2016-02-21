@@ -1,0 +1,23 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/BoSong_PS3_CPSC424
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+procs=8, tpn=4
+p = 8, N = 8000
+Message printed by master: Total elapsed time: 52.189997 s. Communication time: 48.382703 s. Computation time: 3.807295 s
+
+real	0m57.104s
+user	3m22.412s
+sys	0m1.585s
+p = 8, N = 12000
+Message printed by master: Total elapsed time: 173.601159 s. Communication time: 155.247776 s. Computation time: 18.353383 s
+
+real	2m58.740s
+user	11m9.627s
+sys	0m3.573s

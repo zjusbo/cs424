@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l procs=8,tpn=8,mem=68gb
+#PBS -l procs=16,tpn=2,mem=68gb
 #PBS -l walltime=15:00
 #PBS -N Mulmatrix
 #PBS -r n
@@ -22,9 +22,10 @@ pwd
 cat $PBS_NODEFILE
 
 # Run the program 3 times
-for p in 1 2 4 8
+echo procs=16, tpn=2
+for p in 8
 do
-  for N in 1000 2000 4000 8000 12000
+  for N in 8000 12000
   do
     echo p = $p, N = $N
     time mpiexec -n $p parallel $N
