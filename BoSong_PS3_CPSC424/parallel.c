@@ -146,7 +146,7 @@ int main(int argc, char **argv ) {
     total_comm_time += wct_comm1 - wct_comm0;
     wct1 = wct_comm1;
     total_time = wct1 - wct0;
-    printf("Message printed by master: Total elapsed time: %f s. Communication time: %f s. Computation time: %f s\n", total_time, total_comm_time, total_comp_time);
+    printf("[Process %d] t_total = %fs. t_comm = %fs. t_comp = %fs\n", rank, total_time, total_comm_time, total_comp_time);
     /*for(i = 0; i < N; i++){
       for(j = 0; j < N; j++){
         printf("%f ", C[i * N + j]);
@@ -190,6 +190,7 @@ int main(int argc, char **argv ) {
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting
     //printf("Process %d is behind Barrier now.\n", rank);
     /* Receive permanent row from the master */
+    timing(&wct_comm0, &cput); //set the start time
     
     //printf("Process %d recved from process %d: N = %d.\n", rank, 0, N);
     MPI_Recv(A, row_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status); // recv permanent row from master
@@ -201,16 +202,20 @@ int main(int argc, char **argv ) {
     col_len = calBlockLen(col_idx, block_size);
     MPI_Recv(B, col_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &status);
     //printf("Process %d recved from process %d: col_addr = %p, col_len = %d.\n", rank, 0, B, col_len);
-  
+    timing(&wct_comm1, &cput); //set the start time
+    total_comm_time += wct_comm1 - wct_comm0;
+    wct_comp0 = wctcomm1;
     // calculate result, row_idx pretend to be 0. 
     block_matmul(A, B, C, row_idx, col_idx, block_size, N);
     //printf("Process %d: Computer first block completed.\n", rank);
-    
+    timing(&wct_comp1, &cput); //set the start time
+    total_comp_time += wct_comp1 - wct_comp0;
+
     for(i = 1; i < num_nodes; i++){
       int next_rank = rank + 1 == num_nodes? 0: rank + 1;
       int prev_rank = rank - 1;
       int new_col_idx, new_col_len;
-
+      wct_comm0 = wct_comp1;
       MPI_Recv(&new_col_idx, 1, MPI_INT, prev_rank, type, MPI_COMM_WORLD, &status);
       //printf("Process %d recv from process %d: col_idx = %d.\n", rank, prev_rank, col_idx);
 
@@ -227,13 +232,21 @@ int main(int argc, char **argv ) {
 
       col_len = new_col_len;
       memcpy(B, buf, sizeof(double) * col_len);
-
+      timing(&wct_comm1, &cput);
+      total_comm_time += wct_comm1 - wct_comm0;
+      wct_comp0 = wct_comm1;
       block_matmul(A, B, C, row_idx, col_idx, block_size, N);
-      //printf("Process %d: block result computed.\n", rank);
+      timing(&wct_comp1, &cput);
+      total_comp_time += wct_comp1 - wct_comp0;
     }
+    wct_comm0 = wct_comp1;
     // Send result back to master node
     MPI_Send(C, N * block_size, MPI_DOUBLE, 0, type, MPI_COMM_WORLD);
     //printf("Process %d sent to process %d: result sent.\n", rank, 0);
+    timing(&wct_comm1, &cput);
+    total_comm_time += wct_comm1 - wct_comm0;
+
+    printf("[Process %d] t_comm = %fs, t_comp = %fs\n", rank, total_comm_time, total_comp_time);
     
     free(A);
     free(B);
