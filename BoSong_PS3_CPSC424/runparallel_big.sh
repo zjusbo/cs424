@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l procs=8,tpn=8,mem=68gb
+#PBS -l procs=32,tpn=8,mem=136gb
 #PBS -l walltime=30:00
 #PBS -N Lab2_task2
 #PBS -r n
@@ -22,7 +22,7 @@ pwd
 cat $PBS_NODEFILE
 
 # Run the program 3 times
-echo 1 node
+echo 4 nodes
 for p in 8
 do
   for N in 8000 12000
