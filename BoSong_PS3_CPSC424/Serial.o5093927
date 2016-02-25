@@ -1,0 +1,19 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/BoSong_PS3_CPSC424
+compute-20-1
+rm -f serial parallel *.o
+mpicc -g -O3 -xHost -fno-alias -std=c99 -I/home/fas/hpcprog/ahs3/cpsc424/utils/timing -Wall -c serial.c
+mpicc -g -O3 -xHost -fno-alias -std=c99 -I/home/fas/hpcprog/ahs3/cpsc424/utils/timing -Wall -c matmul.c
+mpicc -o serial -g -O3 -xHost -fno-alias -std=c99 -I/home/fas/hpcprog/ahs3/cpsc424/utils/timing -Wall serial.o matmul.o /home/fas/hpcprog/ahs3/cpsc424/utils/timing/timing.o
+Matrix multiplication times:
+   N      TIME (secs)
+ -----   -------------
+   1000       0.1797
+   2000       2.2810
+   4000      19.3756
+   8000     153.9208
+  12000     518.4189
+
+real	11m37.954s
+user	11m37.089s
+sys	0m0.603s
