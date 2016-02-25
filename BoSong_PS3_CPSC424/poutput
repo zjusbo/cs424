@@ -48,3 +48,25 @@ p = 8, N = 8000
 Message printed by master: Total elapsed time: 54.969293 s. Communication time: 47.861918 s. Computation time: 7.107375 s
 p = 8, N = 12000
 Message printed by master: Total elapsed time: 204.942048 s. Communication time: 180.391918 s. Computation time: 24.550130 s
+
+
+
+
+procs=32,tpn=8
+[Process 1] t_comm = 37.070034s, t_comp = 16.661332s
+[Process 2] t_comm = 31.675483s, t_comp = 23.114964s
+[Process 3] t_comm = 28.131924s, t_comp = 27.602000s
+[Process 4] t_comm = 19.145311s, t_comp = 38.537364s
+[Process 5] t_comm = 15.703099s, t_comp = 42.952173s
+[Process 6] t_comm = 14.616971s, t_comp = 46.257423s
+[Process 0] t_total = 60.899171s. t_comm = 53.861067s. t_comp = 7.038104s
+[Process 7] t_comm = 15.695523s, t_comp = 45.203610s
+[bs744@compute-20-1 BoSong_PS3_CPSC424]$ mpiexec -n 8 parallel 12000
+[Process 1] t_comm = 121.317617s, t_comp = 55.559244s
+[Process 2] t_comm = 103.562660s, t_comp = 79.227945s
+[Process 3] t_comm = 75.124717s, t_comp = 113.122925s
+[Process 4] t_comm = 83.189626s, t_comp = 105.515424s
+[Process 5] t_comm = 50.783736s, t_comp = 143.580251s
+[Process 6] t_comm = 46.593191s, t_comp = 150.798555s
+[Process 0] t_total = 197.432386s. t_comm = 173.445987s. t_comp = 23.986398s
+[Process 7] t_comm = 47.907246s, t_comp = 149.525186s
