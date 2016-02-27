@@ -37,7 +37,8 @@ int main(int argc, char ** argv){
                 send.color[1] = 2;
                 send.color[2] = 3;
 		const int dest = 1;
-		MPI_Send(&send, 1, mpi_car_type, dest, tag, MPI_COMM_WORLD);
+                MPI_Request req;
+		MPI_Isend(&send, 1, mpi_car_type, dest, tag, MPI_COMM_WORLD, &req);
 		printf("Master finish\n");
 	}
 	else{
