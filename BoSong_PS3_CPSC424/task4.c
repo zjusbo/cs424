@@ -11,9 +11,10 @@
 int calBlockLen(int row_col_idx, int block_size);
 void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size, int N);
 void swap(double** a, double** b);
-int cal_block_size(int N, int rank, num_nodes);
+int cal_block_size(int N, int rank, int num_nodes);
 // Use non-blocking function calls
 
+int * _block_size = NULL;
 int main(int argc, char **argv ) {
 
   int rank, size, type=99;
@@ -40,7 +41,7 @@ int main(int argc, char **argv ) {
   MPI_Comm_size(MPI_COMM_WORLD,&num_nodes); // Get no. of processes
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); // Which process am I?
   
-  int block_size = N / num_nodes;
+  int block_size;
   total_comm_time = total_comp_time = 0;
   /* If I am the master (rank 0) ... */
   if (rank == 0) {
@@ -78,10 +79,11 @@ int main(int argc, char **argv ) {
     /* Send the permanent row to all the workers, which is where the work happens */
     int row_idx = 0;
     for (i = 1; i < num_nodes; i++) {
-      block_size = cal_block_size(N, i, num_nodes);
-      row_idx += i * block_size;
+      block_size = cal_block_size(N, i - 1, num_nodes);
+      row_idx += block_size;
       iA = row_idx * (row_idx + 1) / 2; // initializes row pointer in A
-      // length of flattened block 
+      // length of flattened block
+      block_size = cal_block_size(N, i, num_nodes); 
       int len = calBlockLen(row_idx, block_size); //gaussian formula
       
       MPI_Isend(A + iA, len, MPI_DOUBLE, i, type, MPI_COMM_WORLD, &send_request[i]); // send permanent row to worker
@@ -95,9 +97,10 @@ int main(int argc, char **argv ) {
     int col_idx = 0;
     /*Send column flow to all workers*/
     for (i = 1; i < num_nodes; i++) {
-      block_size = cal_block_size(N, i, num_nodes);
-      col_idx += i * block_size;
+      block_size = cal_block_size(N, i - 1, num_nodes);
+      col_idx += block_size;
       iB = col_idx * (col_idx + 1) / 2; // initializes col pointer in B
+      block_size = cal_block_size(N, i, num_nodes); 
       int len = calBlockLen(col_idx, block_size); //gaussian formula
 
       MPI_Isend(&col_idx, 1, MPI_INT, i, type, MPI_COMM_WORLD, &send_request[i]);
@@ -122,7 +125,7 @@ int main(int argc, char **argv ) {
     int new_col_len, new_col_idx; // used for non blocking
     double * new_col = (double *) calloc(sizeAB, sizeof(double)); 
     double * f_new_col = new_col; // for free use
-    block_size = cal_block_size(N, rank, num_nodes);
+    block_size = cal_block_size(N, 0, num_nodes);
     int row_len = calBlockLen(row_idx, block_size); //gaussian formula
     int col_len = calBlockLen(col_idx, block_size);
     
@@ -172,8 +175,9 @@ int main(int argc, char **argv ) {
     // collect results from workers
     row_idx = 0;
     for(i = 1; i < num_nodes; i++){
+      block_size = cal_block_size(N, i - 1, num_nodes);  
+      row_idx += block_size;
       block_size = cal_block_size(N, i, num_nodes);  
-      row_idx += block_size * i;
       MPI_Irecv(C + N * row_idx, block_size * N, MPI_DOUBLE, i, type, MPI_COMM_WORLD, &recv_request[i]);
       //printf("Process %d recved from process %d: res addr = %p, len = %d.\n", rank, i, C + N * row_idx, block_size * N);
     }
@@ -185,12 +189,6 @@ int main(int argc, char **argv ) {
     wct1 = wct_comm1;
     total_time = wct1 - wct0;
     printf("[Process %d] t_total = %fs. t_comm = %fs. t_comp = %fs\n", rank, total_time, total_comm_time, total_comp_time);
-    for(i = 0; i < N; i++){
-      for(j = 0; j < N; j++){
-        printf("%f ", C[i * N + j]);
-      }
-      printf("\n");
-    }
     free(A);
     free(B);
     free(C);    
@@ -333,7 +331,6 @@ void swap(double** col, double** new_col){
 }
 
 // load balance
-int * _block_size = NULL;
 int cal_block_size(int N, int rank, int num_nodes){
   if(_block_size != NULL){
     // return previously calculated value directly
