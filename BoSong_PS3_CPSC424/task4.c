@@ -9,7 +9,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 int calBlockLen(int row_col_idx, int block_size);
-void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size, int N);
+void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size, int, col_block_size, int N);
 void swap(double** a, double** b);
 int cal_block_size(int N, int rank, int num_nodes);
 // Use non-blocking function calls
@@ -42,6 +42,7 @@ int main(int argc, char **argv ) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); // Which process am I?
   
   int block_size;
+  int col_block_size = N / num_nodes;
   total_comm_time = total_comp_time = 0;
   /* If I am the master (rank 0) ... */
   if (rank == 0) {
@@ -126,9 +127,9 @@ int main(int argc, char **argv ) {
     double * f_new_col = new_col; // for free use
     block_size = cal_block_size(N, 0, num_nodes);
     int row_len = calBlockLen(row_idx, block_size); //gaussian formula
-    int col_len = calBlockLen(col_idx, block_size);
+    int col_len = calBlockLen(col_idx, col_block_size);
     
-    block_matmul(row, col, C, row_idx, col_idx, block_size, N);
+    block_matmul(row, col, C, row_idx, col_idx, block_size, col_block_size, N);
     //printf("Process %d computed first block result\n", rank);
 
     timing(&wct_comp1, &cput);
@@ -159,7 +160,7 @@ int main(int argc, char **argv ) {
       timing(&wct_comm1, &cput);
       total_comm_time += wct_comm1 - wct_comm0;
       wct_comp0 = wct_comm1;
-      block_matmul(row, new_col, C, row_idx, new_col_idx, block_size, N);
+      block_matmul(row, new_col, C, row_idx, new_col_idx, block_size, col_block_size, N);
       timing(&wct_comp1, &cput);
       total_comp_time += wct_comp1 - wct_comp0;
       wct_comm0 = wct_comp1;
@@ -258,7 +259,7 @@ int main(int argc, char **argv ) {
     total_comm_time += wct_comm1 - wct_comm0;
     wct_comp0 = wct_comm1;
     // calculate result, row_idx pretend to be 0. 
-    block_matmul(A, B, C, row_idx, col_idx, block_size, N);
+    block_matmul(A, B, C, row_idx, col_idx, block_size, col_block_size, N);
     //printf("Process %d: Computer first block completed.\n", rank);
     timing(&wct_comp1, &cput); //set the start time
     total_comp_time += wct_comp1 - wct_comp0;
@@ -289,7 +290,7 @@ int main(int argc, char **argv ) {
       total_comm_time += wct_comm1 - wct_comm0;
       wct_comp0 = wct_comm1;
       
-      block_matmul(A, buf, C, row_idx, new_col_idx, block_size, N);
+      block_matmul(A, buf, C, row_idx, new_col_idx, block_size, col_block_size, N);
       
       timing(&wct_comp1, &cput);
       total_comp_time += wct_comp1 - wct_comp0;
@@ -369,12 +370,12 @@ int calBlockLen(int row_col_idx, int block_size){
  * Calculate block multiplication row * col and store the result in C
  * 
  **/
-void block_matmul(double* A, double* B, double* C, int row_idx, int col_idx, int block_size, int N){
+void block_matmul(double* A, double* B, double* C, int row_idx, int col_idx, int row_block_size, int col_block_size, int N){
   int iC, i, iA, iB, j, k;
-  for (i = 0; i < block_size; i++) {
+  for (i = 0; i < row_block_size; i++) {
     iC = i * N + col_idx;
     iA = i * (row_idx + 1 + (row_idx + i)) / 2; // initializes row pointer in A
-    for (j = 0; j < block_size; j++, iC++) {
+    for (j = 0; j < col_block_size; j++, iC++) {
       iB = j * (col_idx + 1 + (col_idx + j)) / 2; // initializes column pointer in B
       C[iC] = 0.;
       for (k = 0; k <= MIN(i + row_idx, j + col_idx); k++) C[iC] += A[iA+k] * B[iB+k]; // avoids using known-0 entries 
