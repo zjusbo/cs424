@@ -362,6 +362,7 @@ int cal_block_size(int N, int rank, int num_nodes){
         break;
       }
     }
+    return cal_block_size(N, rank, num_nodes);
   }
 }
 int calBlockLen(int row_col_idx, int block_size){
