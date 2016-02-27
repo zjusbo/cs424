@@ -1,0 +1,37 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/BoSong_PS3_CPSC424
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-15
+compute-14-15
+compute-14-15
+compute-14-15
+2 nodes, proc = 8, tpn = 4
+p = 8, N = 8000
+[Process 3] t_comm = 7.509963s, t_comp = 19.145289s
+[Process 4] t_comm = 8.351240s, t_comp = 18.306229s
+[Process 2] t_comm = 5.333823s, t_comp = 21.335805s
+[Process 5] t_comm = 9.842251s, t_comp = 16.830690s
+[Process 1] t_comm = 3.519772s, t_comp = 23.156928s
+[Process 6] t_comm = 5.915458s, t_comp = 20.770545s
+[Process 0] t_total = 26.698658s. t_comm = 1.273652s. t_comp = 25.425006s
+[Process 7] t_comm = 10.910636s, t_comp = 15.788015s
+
+real	0m31.149s
+user	1m55.363s
+sys	0m1.983s
+p = 8, N = 12000
+[Process 1] t_comm = 11.014565s, t_comp = 80.402356s
+[Process 2] t_comm = 18.124944s, t_comp = 73.276381s
+[Process 3] t_comm = 23.483392s, t_comp = 67.912339s
+[Process 4] t_comm = 34.204869s, t_comp = 57.272002s
+[Process 5] t_comm = 39.877871s, t_comp = 51.634965s
+[Process 6] t_comm = 43.846692s, t_comp = 47.698672s
+[Process 0] t_total = 91.573045s. t_comm = 0.611802s. t_comp = 90.961243s
+[Process 7] t_comm = 45.047446s, t_comp = 46.525616s
+
+real	1m36.447s
+user	6m19.417s
+sys	0m4.845s

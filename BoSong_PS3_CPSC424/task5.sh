@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -l procs=8,tpn=2,mem=136gb
 #PBS -l walltime=30:00
-#PBS -N task3New
+#PBS -N task5
 #PBS -r n
 #PBS -j oe
 #PBS -q cpsc424
@@ -28,7 +28,7 @@ do
   for N in 8000 12000
   do
     echo p = $p, N = $N
-    time mpiexec -n $p task3 $N
+    time mpiexec -n $p task5 $N
   done
 done
 

@@ -122,7 +122,6 @@ int main(int argc, char **argv ) {
     int row_len = calBlockLen(row_idx, block_size); //gaussian formula
     int col_len = calBlockLen(col_idx, block_size);
     
-    block_matmul(row, col, C, row_idx, col_idx, block_size, N);
     //printf("Process %d computed first block result\n", rank);
 
     timing(&wct_comp1, &cput);
@@ -132,38 +131,41 @@ int main(int argc, char **argv ) {
     for(i = 1; i < num_nodes; i++){
       // send col_idx and col data to next node
       MPI_Isend(&col_idx, 1, MPI_INT, rank + 1, type, MPI_COMM_WORLD, &send_request[0]);
-      //printf("Process %d sent to process %d: col idx = %d.\n", rank, 1, col_idx);
+      MPI_Isend(col, col_len, MPI_DOUBLE, rank + 1, type, MPI_COMM_WORLD, &send_request[1]);
 
       MPI_Irecv(&new_col_idx, 1, MPI_INT, num_nodes - 1, type, MPI_COMM_WORLD, &recv_request[0]);
+      MPI_Irecv(new_col, sizeAB, MPI_DOUBLE, num_nodes - 1, type, MPI_COMM_WORLD, &recv_request[1]);
       //printf("Process %d recved from process %d: col idx = %d.\n", rank, num_nodes - 1, col_idx);
 
-      MPI_Isend(col, col_len, MPI_DOUBLE, rank + 1, type, MPI_COMM_WORLD, &send_request[1]);
      // printf("Process %d sent to process %d: col addr = %p, len = %d.\n", rank, 1, col, col_len);
       
       // recv col_idx and col data from prev node
       
       // block to recv new_col_idx
-      MPI_Wait(&recv_request[0], &status); // wait for new_col_idx
-      new_col_len = calBlockLen(new_col_idx, block_size);
       // We can not change this to non-block version
-      MPI_Recv(new_col, new_col_len, MPI_DOUBLE, num_nodes - 1, type, MPI_COMM_WORLD, &status);
       //printf("Process %d recved from process %d: col addr = %p, col_len = %d.\n", rank, num_nodes - 1, col, col_len);
       // C is a row block
       timing(&wct_comm1, &cput);
       total_comm_time += wct_comm1 - wct_comm0;
       wct_comp0 = wct_comm1;
-      block_matmul(row, new_col, C, row_idx, new_col_idx, block_size, N);
+      block_matmul(row, col, C, row_idx, col_idx, block_size, N);
       timing(&wct_comp1, &cput);
       total_comp_time += wct_comp1 - wct_comp0;
       wct_comm0 = wct_comp1;
       
-      
+      MPI_Wait(&recv_request[0], &status); // wait for new_col_idx
+      MPI_Wait(&recv_request[1], &status); // wait for new_col
+      MPI_Get_count(&status, MPI_DOUBLE, &new_col_len);
+
       MPI_Wait(&send_request[0], &status); // wait to use col idx
       MPI_Wait(&send_request[1], &status); // wait to use col
       col_idx = new_col_idx;
       col_len = new_col_len;
       swap(&col, &new_col);
     }
+
+    block_matmul(row, col, C, row_idx, col_idx, block_size, N); // calculate the last block
+
     // collect results from workers
     for(i = 1; i < num_nodes; i++){
       int row_idx = block_size * i;
@@ -234,53 +236,37 @@ int main(int argc, char **argv ) {
     //printf("Process %d recved from process %d: col_idx = %d.\n", rank, 0, col_idx);
     
     // wait for col_idx
-    MPI_Wait(&recv_request[1], &status);
     
-    col_len = calBlockLen(col_idx, block_size);
     
-    MPI_Irecv(B, col_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &recv_request[2]);
+    MPI_Irecv(B, sizeAB, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &recv_request[2]);
     
     MPI_Wait(&recv_request[0], &status);
+    MPI_Wait(&recv_request[1], &status);
     MPI_Wait(&recv_request[2], &status);
-
+    MPI_Get_count(&status, MPI_DOUBLE, &col_len);
     //printf("Process %d recved from process %d: col_addr = %p, col_len = %d.\n", rank, 0, B, col_len);
-    timing(&wct_comm1, &cput); //set the start time
-    total_comm_time += wct_comm1 - wct_comm0;
-    wct_comp0 = wct_comm1;
-    // calculate result, row_idx pretend to be 0. 
-    block_matmul(A, B, C, row_idx, col_idx, block_size, N);
-    //printf("Process %d: Computer first block completed.\n", rank);
-    timing(&wct_comp1, &cput); //set the start time
-    total_comp_time += wct_comp1 - wct_comp0;
-    wct_comm0 = wct_comp1;
 
     for(i = 1; i < num_nodes; i++){
       int next_rank = rank + 1 == num_nodes? 0: rank + 1;
       int prev_rank = rank - 1;
       int new_col_idx, new_col_len;
-      MPI_Irecv(&new_col_idx, 1, MPI_INT, prev_rank, type, MPI_COMM_WORLD, &recv_request[0]);
       //printf("Process %d recv from process %d: col_idx = %d.\n", rank, prev_rank, col_idx);
 
       MPI_Isend(&col_idx, 1, MPI_INT, next_rank, type, MPI_COMM_WORLD, &send_request[0]);
-      //printf("Process %d sent to process %d: col_idx = %d.\n", rank, next_rank, col_idx);
-
-
-      MPI_Wait(&recv_request[0], &status); // read new_col_idx
-      
-      new_col_len = calBlockLen(new_col_idx, block_size);
-      MPI_Irecv(buf, new_col_len, MPI_DOUBLE, prev_rank, type, MPI_COMM_WORLD, &recv_request[1]); 
-      //printf("Process %d recv from process %d: col_len = %d.\n", rank, prev_rank, col_len);
-      
       MPI_Isend(B, col_len, MPI_DOUBLE, next_rank, type, MPI_COMM_WORLD, &send_request[1]);
+      //printf("Process %d sent to process %d: col_idx = %d.\n", rank, next_rank, col_idx);
+      
+      MPI_Irecv(&new_col_idx, 1, MPI_INT, prev_rank, type, MPI_COMM_WORLD, &recv_request[0]);
+      MPI_Irecv(buf, sizeAB, MPI_DOUBLE, prev_rank, type, MPI_COMM_WORLD, &recv_request[1]); 
+      
       //printf("Process %d sent to process %d: col_len = %d.\n", rank, next_rank, col_len);
       
-      MPI_Wait(&recv_request[1], &status); // wait for buf
       
       timing(&wct_comm1, &cput);
       total_comm_time += wct_comm1 - wct_comm0;
       wct_comp0 = wct_comm1;
       
-      block_matmul(A, buf, C, row_idx, new_col_idx, block_size, N);
+      block_matmul(A, B, C, row_idx, col_idx, block_size, N);
       
       timing(&wct_comp1, &cput);
       total_comp_time += wct_comp1 - wct_comp0;
@@ -288,10 +274,22 @@ int main(int argc, char **argv ) {
       
       MPI_Wait(&send_request[0], &status); // wait for col_idx
       MPI_Wait(&send_request[1], &status); // wait for B
+
+      MPI_Wait(&recv_request[0], &status); // read new_col_idx
+      MPI_Wait(&recv_request[1], &status); // wait for buf
+      MPI_Get_count(&status, MPI_DOUBLE, &new_col_len);
       col_idx = new_col_idx;
       col_len = new_col_len;
       swap(&B, &buf);
     }
+    timing(&wct_comm1, &cput);
+    total_comm_time += wct_comm1 - wct_comm0;
+    wct_comp0 = wct_comm1;
+
+    block_matmul(A, B, C, row_idx, col_idx, block_size, N);
+    
+    timing(&wct_comp1, &cput);
+    total_comp_time += wct_comp1 - wct_comp0;
     wct_comm0 = wct_comp1;
     // Send result back to master node
     MPI_Send(C, N * block_size, MPI_DOUBLE, 0, type, MPI_COMM_WORLD);

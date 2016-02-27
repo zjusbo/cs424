@@ -28,11 +28,12 @@ int main(int argc, char **argv ) {
   } 
 
   int N, i, j, k;
+  int raw_N;
   double *A, *B, *C;
   int sizeAB, sizeC, iA, iB, iC;
-  
+  int raw_sizeAB, raw_sizeC; 
   // 1000,2000,4000,8000,12000
-  N = atoi(argv[1]); // size of the matrix
+  raw_N = atoi(argv[1]); // size of the matrix
 
   MPI_Status status;
 
@@ -40,7 +41,8 @@ int main(int argc, char **argv ) {
 
   MPI_Comm_size(MPI_COMM_WORLD,&num_nodes); // Get no. of processes
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); // Which process am I?
-  
+  int remainder = raw_N % num_nodes;
+  N = raw_N - remainder + num_nodes;
   int block_size;
   int col_block_size = N / num_nodes;
   total_comm_time = total_comp_time = 0;
@@ -59,8 +61,12 @@ int main(int argc, char **argv ) {
     //printf("Master Process: N = %d, num_nodes = %d, rank = %d, block_size = %d.\n", N, num_nodes, rank, block_size);
     MPI_Request dummy_request, send_request[20], send1_request[20], recv_request[20];
     MPI_Status status;
+
     sizeAB = N*(N+1)/2; //Only enough space for the nonzero portions of the matrices
     sizeC = N*N; // All of C will be nonzero, in general!
+
+    raw_sizeAB = raw_N * (raw_N + 1) / 2;
+    raw_sizeC = raw_N * raw_N;
 
     A = (double *) calloc(sizeAB, sizeof(double)); 
     B = (double *) calloc(sizeAB, sizeof(double)); 
@@ -69,8 +75,8 @@ int main(int argc, char **argv ) {
     srand(12345); // Use a standard seed value for reproducibility
 
     // This assumes A is stored by rows, and B is stored by columns. Other storage schemes are permitted
-    for (i=0; i<sizeAB; i++) A[i] = ((double) rand()/(double)RAND_MAX);
-    for (i=0; i<sizeAB; i++) B[i] = ((double) rand()/(double)RAND_MAX);
+    for (i=0; i<raw_sizeAB; i++) A[i] = ((double) rand()/(double)RAND_MAX);
+    for (i=0; i<raw_sizeAB; i++) B[i] = ((double) rand()/(double)RAND_MAX);
 
     MPI_Barrier(MPI_COMM_WORLD); //wait for everyone to be ready before starting timer
     //printf("Process %d is behind Barrier now.\n", rank);
@@ -336,7 +342,7 @@ int main(int argc, char **argv ) {
   }
 
   free(_block_size);
-  
+
   MPI_Finalize(); // Required MPI termination call
 }
 void swap(double** col, double** new_col){
