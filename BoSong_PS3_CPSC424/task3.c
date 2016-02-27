@@ -10,7 +10,7 @@
 
 int calBlockLen(int row_col_idx, int block_size);
 void block_matmul(double* row, double* col, double* C, int row_idx, int col_idx, int block_size, int N);
-
+void swap(double** a, double** b);
 
 // Use non-blocking function calls
 
@@ -116,8 +116,9 @@ int main(int argc, char **argv ) {
     double * row = A, * col = B;
     int col_idx = 0;
     int row_idx = 0;
-    int next_col_idx, new_col_len; // used for non blocking
+    int new_col_len, new_col_idx; // used for non blocking
     double * new_col = (double *) calloc(sizeAB, sizeof(double)); 
+    double * f_new_col = new_col; // for free use
     int row_len = calBlockLen(row_idx, block_size); //gaussian formula
     int col_len = calBlockLen(col_idx, block_size);
     
@@ -151,7 +152,7 @@ int main(int argc, char **argv ) {
       timing(&wct_comm1, &cput);
       total_comm_time += wct_comm1 - wct_comm0;
       wct_comp0 = wct_comm1;
-      block_matmul(row, new_col, C, row_idx, col_idx, block_size, N);
+      block_matmul(row, new_col, C, row_idx, new_col_idx, block_size, N);
       timing(&wct_comp1, &cput);
       total_comp_time += wct_comp1 - wct_comp0;
       wct_comm0 = wct_comp1;
@@ -161,7 +162,7 @@ int main(int argc, char **argv ) {
       MPI_Wait(&send_request[1], &status); // wait to use col
       col_idx = new_col_idx;
       col_len = new_col_len;
-      swap(col, new_col);
+      swap(&col, &new_col);
     }
     // collect results from workers
     for(i = 1; i < num_nodes; i++){
@@ -177,16 +178,16 @@ int main(int argc, char **argv ) {
     wct1 = wct_comm1;
     total_time = wct1 - wct0;
     printf("[Process %d] t_total = %fs. t_comm = %fs. t_comp = %fs\n", rank, total_time, total_comm_time, total_comp_time);
-    /*for(i = 0; i < N; i++){
+    for(i = 0; i < N; i++){
       for(j = 0; j < N; j++){
         printf("%f ", C[i * N + j]);
       }
       printf("\n");
-    }*/
+    }
     free(A);
     free(B);
     free(C);    
-    free(new_col);
+    free(f_new_col);
   }
 
   /* Otherwise, if I am a worker ... */
@@ -237,7 +238,7 @@ int main(int argc, char **argv ) {
     
     col_len = calBlockLen(col_idx, block_size);
     
-    MPI_Recv(B, col_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &recv_request[2]);
+    MPI_Irecv(B, col_len, MPI_DOUBLE, 0, type, MPI_COMM_WORLD, &recv_request[2]);
     
     MPI_Wait(&recv_request[0], &status);
     MPI_Wait(&recv_request[2], &status);
@@ -289,7 +290,7 @@ int main(int argc, char **argv ) {
       MPI_Wait(&send_request[1], &status); // wait for B
       col_idx = new_col_idx;
       col_len = new_col_len;
-      swap(B, buf);
+      swap(&B, &buf);
     }
     wct_comm0 = wct_comp1;
     // Send result back to master node

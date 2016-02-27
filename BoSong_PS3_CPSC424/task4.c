@@ -288,7 +288,6 @@ int main(int argc, char **argv ) {
       
       MPI_Wait(&recv_request[1], &status); // wait for buf
       MPI_Get_count(&status, MPI_DOUBLE, &new_col_len);
-    
       timing(&wct_comm1, &cput);
       total_comm_time += wct_comm1 - wct_comm0;
       wct_comp0 = wct_comm1;
@@ -307,7 +306,9 @@ int main(int argc, char **argv ) {
     }
     wct_comm0 = wct_comp1;
     // Send result back to master node
+
     block_size = cal_block_size(N, rank, num_nodes);
+
     MPI_Send(C, N * block_size, MPI_DOUBLE, 0, type, MPI_COMM_WORLD);
     //printf("Process %d sent to process %d: result sent.\n", rank, 0);
     timing(&wct_comm1, &cput);
@@ -320,7 +321,9 @@ int main(int argc, char **argv ) {
     free(C);
     free(buf);
   }
+
   free(_block_size);
+
   MPI_Finalize(); // Required MPI termination call
 }
 void swap(double** col, double** new_col){
@@ -328,6 +331,7 @@ void swap(double** col, double** new_col){
   *col = *new_col;
   *new_col = tmp;
 }
+
 // load balance
 int * _block_size = NULL;
 int cal_block_size(int N, int rank, int num_nodes){
