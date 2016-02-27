@@ -13,4 +13,4 @@ serial:	serial.o matmul.o $(TIMINGDIR)/timing.o
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f serial parallel *.o
+	rm -f serial parallel *.o task2 task3 task4

@@ -178,12 +178,12 @@ int main(int argc, char **argv ) {
     wct1 = wct_comm1;
     total_time = wct1 - wct0;
     printf("[Process %d] t_total = %fs. t_comm = %fs. t_comp = %fs\n", rank, total_time, total_comm_time, total_comp_time);
-    for(i = 0; i < N; i++){
-      for(j = 0; j < N; j++){
-        printf("%f ", C[i * N + j]);
-      }
-      printf("\n");
-    }
+   // for(i = 0; i < N; i++){
+   //   for(j = 0; j < N; j++){
+   //     printf("%f ", C[i * N + j]);
+   //   }
+   //   printf("\n");
+   // }
     free(A);
     free(B);
     free(C);    
