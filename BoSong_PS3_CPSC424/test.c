@@ -5,13 +5,9 @@ int main(int argc, char ** argv){
 	int i;
 	int N = atoi(argv[1]);
 	int num_nodes = atoi(argv[2]);
-        int sum = 0;
-	for(i = 0; i < num_nodes; i++){
-		int size = cal_block_size(N, i, num_nodes);
-		printf("%d, %d\n", i, size);
-                sum += size;
-	}
-        printf("%d\n", sum);
+    int sum = 0;
+	int size = cal_block_size(N, i, num_nodes);
+	return 0;
 }
 
 int * _block_size = NULL;
@@ -32,6 +28,7 @@ int cal_block_size(int N, int rank, int num_nodes){
     for(i = 1; i <= N; i++){
       sum += i;
       if(sum > average_len){ // not the last node
+        printf("%dth node, height: %d, len: %d\n", node_idx, i - row_idx, sum - i);
         i--;
         _block_size[node_idx++] = i - row_idx;
         row_idx = i;

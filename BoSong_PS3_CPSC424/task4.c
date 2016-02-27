@@ -96,12 +96,11 @@ int main(int argc, char **argv ) {
 
     int col_idx = 0;
     /*Send column flow to all workers*/
+    int col_block_size = N / num_nodes;
     for (i = 1; i < num_nodes; i++) {
-      block_size = cal_block_size(N, i - 1, num_nodes);
-      col_idx += block_size;
+      col_idx = col_block_size * (i - 1);
       iB = col_idx * (col_idx + 1) / 2; // initializes col pointer in B
-      block_size = cal_block_size(N, i, num_nodes); 
-      int len = calBlockLen(col_idx, block_size); //gaussian formula
+      int len = calBlockLen(col_idx, col_block_size); //gaussian formula
 
       MPI_Isend(&col_idx, 1, MPI_INT, i, type, MPI_COMM_WORLD, &send_request[i]);
       //printf("Process %d sent to process %d: col_idx = %d.\n", rank, i, col_idx);
