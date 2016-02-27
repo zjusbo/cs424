@@ -28,7 +28,7 @@ do
   for N in 8000 12000
   do
     echo p = $p, N = $N
-    time mpiexec -n $p task3 $N
+    time mpiexec -n $p task4 $N
   done
 done
 
