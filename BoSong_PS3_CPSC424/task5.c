@@ -207,10 +207,20 @@ int main(int argc, char **argv ) {
     wct1 = wct_comm1;
     total_time = wct1 - wct0;
     printf("[Process %d] t_total = %fs. t_comm = %fs. t_comp = %fs\n", rank, total_time, total_comm_time, total_comp_time);
+
+    double * result = (double*) calloc(raw_sizeC, sizeof(double));
+    // extract the useful result
+    for(i = 0; i < raw_N; i++){
+        memcpy(result + i * raw_N, C + i * N, sizeof(double) * raw_N);
+    }
+    
+
+    
     free(A);
     free(B);
     free(C);    
     free(f_new_col);
+    free(result);
   }
 
   /* Otherwise, if I am a worker ... */
