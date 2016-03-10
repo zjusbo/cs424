@@ -1,0 +1,56 @@
+
+
+Initial Conditions (time = 0.0):
+
+     Center of Mass:   (2.738437e-09, -8.980691e-09, -3.708599e-09)
+     Average Velocity: (3.605623e-10, 1.931760e-08, 3.645550e-09)
+
+
+Conditions after timestep 128 (time = 4.000000):
+
+     Center of Mass:   (4.180687e-09, 6.828971e-08, 1.087360e-08)
+     Average Velocity: (3.605620e-10, 1.931760e-08, 3.645550e-09)
+
+
+Conditions after timestep 256 (time = 8.000000):
+
+     Center of Mass:   (5.622937e-09, 1.455601e-07, 2.545580e-08)
+     Average Velocity: (3.605622e-10, 1.931760e-08, 3.645550e-09)
+
+
+Conditions after timestep 384 (time = 12.000000):
+
+     Center of Mass:   (7.065187e-09, 2.228305e-07, 4.003800e-08)
+     Average Velocity: (3.605623e-10, 1.931760e-08, 3.645550e-09)
+
+
+Conditions after timestep 512 (time = 16.000000):
+
+     Center of Mass:   (8.507434e-09, 3.001009e-07, 5.462021e-08)
+     Average Velocity: (3.605622e-10, 1.931760e-08, 3.645550e-09)
+
+
+Conditions after timestep 640 (time = 20.000000):
+
+     Center of Mass:   (9.949683e-09, 3.773713e-07, 6.920241e-08)
+     Average Velocity: (3.605623e-10, 1.931760e-08, 3.645550e-09)
+
+
+Conditions after timestep 768 (time = 24.000000):
+
+     Center of Mass:   (1.139193e-08, 4.546417e-07, 8.378461e-08)
+     Average Velocity: (3.605623e-10, 1.931760e-08, 3.645550e-09)
+
+
+Conditions after timestep 896 (time = 28.000000):
+
+     Center of Mass:   (1.283418e-08, 5.319121e-07, 9.836681e-08)
+     Average Velocity: (3.605623e-10, 1.931760e-08, 3.645550e-09)
+
+
+Conditions after timestep 1024 (time = 32.000000):
+
+     Center of Mass:   (1.427643e-08, 6.091825e-07, 1.129490e-07)
+     Average Velocity: (3.605623e-10, 1.931760e-08, 3.645550e-09)
+
+Time for 1024 timesteps with 3200 bodies:   95.1826 seconds

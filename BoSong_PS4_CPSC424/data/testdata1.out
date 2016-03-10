@@ -1,0 +1,20 @@
+
+
+Initial Conditions (time = 0.0):
+
+     Center of Mass:   (-1.062500e-08, 1.906250e-09, -8.312500e-09)
+     Average Velocity: (-7.840625e-09, -7.346875e-09, -4.062500e-09)
+
+
+Conditions after timestep 128 (time = 4.000000):
+
+     Center of Mass:   (-4.198750e-08, -2.748125e-08, -2.456250e-08)
+     Average Velocity: (-7.840625e-09, -7.346875e-09, -4.062500e-09)
+
+
+Conditions after timestep 130 (time = 4.062500):
+
+     Center of Mass:   (-4.247754e-08, -2.794043e-08, -2.481641e-08)
+     Average Velocity: (-7.840625e-09, -7.346875e-09, -4.062500e-09)
+
+Time for 130 timesteps with 32 bodies:    0.0020 seconds
