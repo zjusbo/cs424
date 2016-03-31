@@ -168,13 +168,14 @@ void extract(int n, int* offsets){
 // Main function
 int main(int argc, char **argv) {
   int i, ts, thisbody, otherbody;
+  int bn;
   double vavgx, vavgy, vavgz, ax, ay, az, deltaf[3];
   // Serial Timing Functions: See the timer.h include file in this directory
   double etime, etime0, etime1, cptime;
 
   int send_counts[8], recv_counts[8], send_offsets[8], recv_offsets[8];  
   int rank, size, type=99;
-  
+  MPI_Init(&argc, &argv);  
   MPI_Comm_size(MPI_COMM_WORLD, &size); // Get no. of processes
   MPI_Comm_rank(MPI_COMM_WORLD, &rank); // Which process am I?
   
@@ -189,7 +190,7 @@ int main(int argc, char **argv) {
   MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&K, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&dt, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
+  printf("1\n");
   dt2 = dt/2.;
 
   // Allocate arrays
@@ -218,6 +219,7 @@ int main(int argc, char **argv) {
     for (i=0; i<N; i++) scanf("%le %le %le\n",&vx[i],&vy[i],&vz[i]);
   }
 
+  printf("2\n");
   // partition bodies into 8 groups evenly 
   n = N / 8;
   // calculate counts and offsets
@@ -231,6 +233,7 @@ int main(int argc, char **argv) {
     }
   }    
 
+  printf("3\n");
   // scatterv , scatter body informations to each process
   // TODO: for processes whose rank != 0, counts and offsets are not initialized.
   if(rank == 0){
@@ -241,6 +244,7 @@ int main(int argc, char **argv) {
     MPI_Scatterv(z, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Scatterv(vx, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Scatterv(vy, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Scatterv(vz, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   }else{
     MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, mass, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, x, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -251,20 +255,21 @@ int main(int argc, char **argv) {
     MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, vz, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   }
   
+  printf("4\n");
   // Start Timer
   timing(&etime0,&cptime);
 
   // Timestamp Loop
   // loop phase 
   for (ts=0; ts<K; ts++) {
-    if (ts%128 == 0) output(ts); // Print output if necessary
+    //if (ts%128 == 0) output(ts); // Print output if necessary
     // partition bodies into 8 groups based on its coordination
     partition(n, send_offsets);
     
     for(i = 0; i < size - 1; i++){
       send_counts[i] = send_offsets[i + 1] - send_offsets[i];
     }
-    send_count[size - 1] = n - send_offsets[size - 1];
+    send_counts[size - 1] = n - send_offsets[size - 1];
     // alltoall number of bodies
     MPI_Alltoall(send_counts, 1, MPI_INT, recv_counts, 1, MPI_INT, MPI_COMM_WORLD);
     
@@ -278,25 +283,25 @@ int main(int argc, char **argv) {
 
     // alltoallv bodies
     MPI_Alltoallv(mass, send_counts, send_offsets, MPI_DOUBLE, 
-      buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+      buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&mass, &buf);
     MPI_Alltoallv(x, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&x, &buf);
     MPI_Alltoallv(y, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&y, &buf);
     MPI_Alltoallv(z, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&z, &buf);
     MPI_Alltoallv(vx, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&vx, &buf);
     MPI_Alltoallv(vy, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&vy, &buf);
     MPI_Alltoallv(vz, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&vz, &buf);
 
     // extract boundary points
@@ -306,32 +311,34 @@ int main(int argc, char **argv) {
     for(i = 0; i < size - 1; i++){
       send_counts[i] = send_offsets[i + 1] - send_offsets[i];
     }
-    send_count[size - 1] = n - send_offsets[size - 1];
+    send_counts[size - 1] = n - send_offsets[size - 1];
     // alltoall number of bodies
     MPI_Alltoall(send_counts, 1, MPI_INT, recv_counts, 1, MPI_INT, MPI_COMM_WORLD);
-    
+     
     recv_offsets[0] = 0;
     for(i = 1; i < size; i++){
       recv_offsets[i] = recv_offsets[i - 1] + recv_counts[i - 1];
     }
+    bn = recv_offsets[size - 1] + recv_counts[size - 1];
+    
     // alltoallv boundary points mass
     MPI_Alltoallv(bmass, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&bmass, &buf);
 
     // alltoallv boundary points x
     MPI_Alltoallv(bx, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&bx, &buf);
     
     // alltoallv boundary points y
     MPI_Alltoallv(by, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&by, &buf);
 
     // alltoallv boundary points z
     MPI_Alltoallv(bz, send_counts, send_offsets, MPI_DOUBLE, 
-          buf, recv_count, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
+          buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&bz, &buf);
 
     // Initialize forces on bodies
@@ -443,4 +450,6 @@ int main(int argc, char **argv) {
   free(by);
   free(bz);
   free(bmass);
+  
+  MPI_Finalize();
 }

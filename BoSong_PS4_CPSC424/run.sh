@@ -5,8 +5,8 @@
 
 cd $PBS_O_WORKDIR
 
-module load Langs/Intel/14
+module load Langs/Intel/14 MPI/OpenMPI/1.6.5
 
-./serial < /home/fas/hpcprog/ahs3/cpsc424/assignment4/data/actualdata4 > ./actualdata4_c.out
+mpiexec -n 8 ./parallel < /home/fas/hpcprog/ahs3/cpsc424/assignment4/data/testdata1 > ./testdata1_c.out
 
 #./fserial < /home/fas/hpcprog/ahs3/cpsc424/assignment4/data/testdata1 > ./testdata1_f.out
