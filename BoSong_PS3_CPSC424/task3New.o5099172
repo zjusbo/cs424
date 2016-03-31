@@ -10,27 +10,44 @@ compute-14-14
 compute-14-14
 2 nodes, proc = 8, tpn = 4
 p = 8, N = 8000
-[Process 1] t_comm = 22.103681s, t_comp = 10.880871s
-[Process 3] t_comm = 12.263480s, t_comp = 20.721139s
-[Process 4] t_comm = 5.853379s, t_comp = 27.132669s
-[Process 2] t_comm = 17.204825s, t_comp = 15.784186s
-[Process 7] t_comm = 0.218334s, t_comp = 34.091956s
-[Process 5] t_comm = 7.611315s, t_comp = 30.130560s
-[Process 0] t_total = 38.324529s. t_comm = 34.780641s. t_comp = 3.543888s
-[Process 6] t_comm = 5.716210s, t_comp = 32.608326s
+34.780641
+3.543888
+22.103681
+10.880871
+17.204825
+15.784186
+12.263480
+20.721139
+5.853379
+27.132669
+7.611315
+30.130560
+5.716210
+32.608326
+0.218334
+34.091956
 
 real	0m42.134s
 user	2m26.094s
 sys	0m2.122s
 p = 8, N = 12000
-[Process 1] t_comm = 80.179828s, t_comp = 50.288290s
-[Process 2] t_comm = 46.990116s, t_comp = 83.458723s
-[Process 3] t_comm = 58.844335s, t_comp = 71.759000s
-[Process 4] t_comm = 23.907193s, t_comp = 106.705502s
-[Process 7] t_comm = 0.489364s, t_comp = 133.305453s
-[Process 5] t_comm = 28.871405s, t_comp = 113.998935s
-[Process 0] t_total = 148.173841s. t_comm = 133.241363s. t_comp = 14.932478s
-[Process 6] t_comm = 18.996820s, t_comp = 129.176970s
+
+133.241363
+14.932478
+80.179828
+50.288290
+46.990116
+83.458723
+58.844335
+71.759000
+23.907193
+106.705502
+28.871405
+113.998935
+18.996820
+129.176970
+0.489364
+133.305453
 
 real	2m34.305s
 user	9m16.397s
