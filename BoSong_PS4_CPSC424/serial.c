@@ -147,6 +147,10 @@ int main(int argc, char **argv) {
       
     }
   }
+  printf("x y z vx vy vz fx fy fz\n");
+  for(i = 0; i < N; i++){
+    printf("%le %le %le %le %le %le %le %le %le\n", x[i], y[i], z[i], vx[i], vy[i], vz[i], fx[i], fy[i], fz[i]);
+  }
   output(K); // Final output
 
   timing(&etime1, &cptime);
