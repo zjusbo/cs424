@@ -12,23 +12,20 @@
   Date: 2/23/2013
 
 */
-#define IDX 7
 // Globals so that we don't need to pass them to functions
 double dt, dt2;
 int N, n, K;
 double *mass, *x, *y, *z, *vx, *vy, *vz, *fx, *fy, *fz, *buf;
 double *bmass, *bx, *by, *bz; // boundary bodies
 
-void debug(char * s, int rank){
-  if (rank == IDX) printf("%s\n", s); 
-}
 void swap(double ** a, double ** b){
   double * tmp = *a;
   *a = *b;
   *b = tmp;
 }
 
-// Function to compute the forces between a pair of bodies
+// copyed from serial.c
+//Function to compute the forces between a pair of bodies
 void force(int body1, int body2, double *deltaf) {
   double gmmr3, r, r2, dx, dy, dz;
   double G=1.0;
@@ -51,7 +48,8 @@ void force(int body1, int body2, double *deltaf) {
   }
 } 
 
-// Function to compute the forces between a pair of body and boundary body
+// modified from force()
+//Function to compute the forces between a pair of body and boundary body
 void bforce(int body1, int body2, double *deltaf) {
   double gmmr3, r, r2, dx, dy, dz;
   double G=1.0;
@@ -73,7 +71,7 @@ void bforce(int body1, int body2, double *deltaf) {
     deltaf[2] = 0.;
   }
 }
-
+// Copyted from serial.c
 // Function to print center of mass and average velocity
 void output(int ts) {
   int thisbody;
@@ -100,6 +98,60 @@ void output(int ts) {
   }
   printf("\n     Center of Mass:   (%e, %e, %e)\n", cmassx/tmass, cmassy/tmass, cmassz/tmass);
   printf(  "     Average Velocity: (%e, %e, %e)\n", tvelx/n, tvely/n, tvelz/n);
+}
+
+void intermediate_output(int ts, int rank){
+  int thisbody;
+  double cmassx, cmassy, cmassz, tmass, tvelx, tvely, tvelz; 
+  int i;
+  if(rank == 0){
+    if (ts==0) printf("\n\nInitial Conditions (time = 0.0):\n");
+    else printf("\n\nConditions after timestep %d (time = %f):\n",ts,ts*dt);
+  }
+  cmassx = 0.;
+  cmassy = 0.;
+  cmassz = 0.;
+  tmass = 0.;
+  tvelx = 0.;
+  tvely = 0.;
+  tvelz = 0.;
+  for (thisbody=0; thisbody<n; thisbody++) {
+    cmassx += mass[thisbody]*x[thisbody];
+    cmassy += mass[thisbody]*y[thisbody];
+    cmassz += mass[thisbody]*z[thisbody];
+    tmass  += mass[thisbody];
+    tvelx += vx[thisbody];
+    tvely += vy[thisbody];
+    tvelz += vz[thisbody];
+  }
+  int tmp[8];
+  MPI_Gather(&n, 1, MPI_INT, tmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  if(rank == 0){
+    MPI_Reduce(MPI_IN_PLACE, &cmassx, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(MPI_IN_PLACE, &cmassy, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(MPI_IN_PLACE, &cmassz, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(MPI_IN_PLACE, &tmass, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(MPI_IN_PLACE, &tvelx, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(MPI_IN_PLACE, &tvely, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(MPI_IN_PLACE, &tvelz, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+  }else{
+    MPI_Reduce(&cmassx, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&cmassy, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&cmassz, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&tmass, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&tvelx, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&tvely, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&tvelz, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD); 
+  }
+  if(rank == 0){
+    printf("\n     Center of Mass:   (%e, %e, %e)\n", cmassx/tmass, cmassy/tmass, cmassz/tmass);
+    printf(  "     Average Velocity: (%e, %e, %e)\n", tvelx/N, tvely/N, tvelz/N);
+    printf("	Load balance:");
+    for(i = 0; i < 8; i++){
+      printf("%d ", tmp[i]);
+    }
+    printf("\n");
+  }
 }
 
 // partition bodies into 8 groups based on its 3D coordinates. 
@@ -223,49 +275,10 @@ int main(int argc, char **argv) {
     for (i=0; i<N; i++) scanf("%le %le %le\n",&x[i],&y[i],&z[i]);
     for (i=0; i<N; i++) scanf("%le %le %le\n",&vx[i],&vy[i],&vz[i]);
     n = N;
-    for(i = 0; i < N; i++){
-      printf("%le %le %le %le\n", mass[i], x[i], y[i], z[i]);
-    }
-    output(K);
   }else{
     n = 0;
   }
 
-  // partition bodies into 8 groups evenly 
-/*  n = N / 8;
-  // calculate counts and offsets
-  if(rank == 0){
-    n += N % 8;
-    send_counts[0] = n;
-    send_offsets[0] = 0;
-    for(i = 1; i < size; i++){
-      send_counts[i] = N / 8;
-      send_offsets[i] = send_offsets[i - 1] + send_counts[i - 1];
-    }
-  }    
-
-  debug("3", rank);
-  // scatterv , scatter body informations to each process
-  // TODO: for processes whose rank != 0, counts and offsets are not initialized.
-  if(rank == 0){
-    // scatter mass, x, y, z, vx, vy, vz
-    MPI_Scatterv(mass, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(x, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(y, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(z, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(vx, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(vy, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(vz, send_counts, send_offsets, MPI_DOUBLE, MPI_IN_PLACE, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  }else{
-    MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, mass, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, x, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, y, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, z, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, vx, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, vy, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, vz, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  }
-*/
   MPI_Barrier(MPI_COMM_WORLD);
   // Start Timer
   timing(&etime0,&cptime);
@@ -273,7 +286,7 @@ int main(int argc, char **argv) {
   // Timestamp Loop
   // loop phase 
   for (ts=0; ts<K; ts++) {
-    //if (ts%128 == 0) output(ts); // Print output if necessary
+    if (ts%128 == 0) intermediate_output(ts, rank); // Print output if necessary
     // partition bodies into 8 groups based on its coordination
     partition(n, send_offsets);
     for(i = 0; i < size - 1; i++){
@@ -289,7 +302,6 @@ int main(int argc, char **argv) {
     // n is not correct
     // update n
     n = recv_offsets[size - 1] + recv_counts[size - 1];
-    if(rank == 7) printf("rank 7, n = %d", n);
     // alltoallv bodies
     MPI_Alltoallv(mass, send_counts, send_offsets, MPI_DOUBLE, 
       buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
@@ -312,13 +324,6 @@ int main(int argc, char **argv) {
     MPI_Alltoallv(vz, send_counts, send_offsets, MPI_DOUBLE, 
           buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&vz, &buf);
-    if(rank == 7){
-      printf("rank 7\n");
-      printf("data received\n");
-      for(i = 0; i < n; i++){
-        printf("%le %le %le %le %le %le\n", x[i], y[i], z[i], vx[i], vy[i], vz[i]);
-      }
-    }
     // extract boundary points
     extract(n, send_offsets, &bn);
    // alltoall number of boundary points
@@ -354,15 +359,7 @@ int main(int argc, char **argv) {
     MPI_Alltoallv(bz, send_counts, send_offsets, MPI_DOUBLE, 
           buf, recv_counts, recv_offsets, MPI_DOUBLE, MPI_COMM_WORLD);
     swap(&bz, &buf);
-     if(rank == 7){
-      printf("rank 7\n");
-      printf("boundary bodies: %d\n", bn);
-      for(i = 0; i < bn; i++){
-        printf("%le %le %le\n", bx[i], by[i], bz[i]);
-      }
-    }
- 
-    // Initialize forces on bodies
+        // Initialize forces on bodies
     for (thisbody=0; thisbody<n; thisbody++) {
       fx[thisbody] = 0.;
       fy[thisbody] = 0.;
@@ -394,10 +391,6 @@ int main(int argc, char **argv) {
 
     // Now move the bodies (assumes constant acceleration during the timestep)
     for (thisbody=0; thisbody<n; thisbody++) {
-       if(rank == 7){
-         printf("rank 7\n");
-         printf("x[%d] = %le, dt = %le, vavgx = %le\n", thisbody, x[thisbody], dt, vavgx);
-      } 
       ax = fx[thisbody]/mass[thisbody]; // Compute x-direction acceleration of thisbody
       ay = fy[thisbody]/mass[thisbody]; // Compute y-direction acceleration of thisbody
       az = fz[thisbody]/mass[thisbody]; // Compute z-direction acceleration of thisbody
@@ -411,10 +404,6 @@ int main(int argc, char **argv) {
       vy[thisbody] += dt*ay; // Compute y velocity of thisbody at end of timestep
       vz[thisbody] += dt*az; // Compute z velocity of thisbody at end of timestep   
    }
-  }
-
-  for(i = 0; i < n; i++){
-    printf("rank: %d, x = %le, y = %le, z = %le, fx = %le, fy = %le, fz = %le\n", rank, x[i], y[i], z[i], fx[i], fy[i], fz[i]);
   }
 
   // gather results
@@ -457,11 +446,6 @@ int main(int argc, char **argv) {
 
   if(rank == 0){
     n = N;
-    debug("mass x y z vx vy vz", rank);
-    for(i = 0; i < N; i++){
-      printf("%le %le %le %le %le %le %le\n", mass[i], x[i], y[i], z[i], vx[i], vy[i], vz[i]);
-    }
-    
     output(K); // Final output
     timing(&etime1, &cptime);
     etime = etime1 - etime0;

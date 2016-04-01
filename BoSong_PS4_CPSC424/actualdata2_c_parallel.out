@@ -1,0 +1,64 @@
+
+
+Initial Conditions (time = 0.0):
+
+     Center of Mass:   (-4.128124e-09, -1.835931e-10, -1.653466e-08)
+     Average Velocity: (-6.789229e-10, -3.510628e-09, 2.741372e-09)
+	Load balance:1600 0 0 0 0 0 0 0 
+
+
+Conditions after timestep 128 (time = 4.000000):
+
+     Center of Mass:   (-6.843818e-09, -1.422610e-08, -5.569169e-09)
+     Average Velocity: (-6.789231e-10, -3.510627e-09, 2.741372e-09)
+	Load balance:238 202 155 210 223 226 162 184 
+
+
+Conditions after timestep 256 (time = 8.000000):
+
+     Center of Mass:   (-9.559511e-09, -2.826861e-08, 5.396319e-09)
+     Average Velocity: (-6.789231e-10, -3.510627e-09, 2.741372e-09)
+	Load balance:110 111 267 302 306 277 114 113 
+
+
+Conditions after timestep 384 (time = 12.000000):
+
+     Center of Mass:   (-1.227520e-08, -4.231112e-08, 1.636181e-08)
+     Average Velocity: (-6.789231e-10, -3.510627e-09, 2.741372e-09)
+	Load balance:90 73 288 347 332 294 73 103 
+
+
+Conditions after timestep 512 (time = 16.000000):
+
+     Center of Mass:   (-1.499089e-08, -5.635363e-08, 2.732729e-08)
+     Average Velocity: (-6.789231e-10, -3.510628e-09, 2.741372e-09)
+	Load balance:64 60 298 377 336 317 71 77 
+
+
+Conditions after timestep 640 (time = 20.000000):
+
+     Center of Mass:   (-1.770659e-08, -7.039614e-08, 3.829278e-08)
+     Average Velocity: (-6.789231e-10, -3.510627e-09, 2.741372e-09)
+	Load balance:53 51 315 375 340 329 64 73 
+
+
+Conditions after timestep 768 (time = 24.000000):
+
+     Center of Mass:   (-2.042228e-08, -8.443865e-08, 4.925827e-08)
+     Average Velocity: (-6.789231e-10, -3.510627e-09, 2.741372e-09)
+	Load balance:57 46 315 368 349 334 63 68 
+
+
+Conditions after timestep 896 (time = 28.000000):
+
+     Center of Mass:   (-2.313797e-08, -9.848116e-08, 6.022376e-08)
+     Average Velocity: (-6.789231e-10, -3.510628e-09, 2.741372e-09)
+	Load balance:58 52 321 356 337 327 73 76 
+
+
+Conditions after timestep 1024 (time = 32.000000):
+
+     Center of Mass:   (-2.585367e-08, -1.125237e-07, 7.118925e-08)
+     Average Velocity: (-6.789231e-10, -3.510627e-09, 2.741372e-09)
+
+Time for 1024 timesteps with 1600 bodies:    6.7959 seconds

@@ -1,0 +1,64 @@
+
+
+Initial Conditions (time = 0.0):
+
+     Center of Mass:   (2.153875e-08, 1.148863e-09, 4.334575e-09)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288737e-10)
+	Load balance:800 0 0 0 0 0 0 0 
+
+
+Conditions after timestep 128 (time = 4.000000):
+
+     Center of Mass:   (-4.088525e-08, -2.401514e-08, 5.250070e-09)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288738e-10)
+	Load balance:109 106 99 85 83 93 109 116 
+
+
+Conditions after timestep 256 (time = 8.000000):
+
+     Center of Mass:   (-1.033092e-07, -4.917914e-08, 6.165565e-09)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288738e-10)
+	Load balance:73 51 135 148 123 142 64 64 
+
+
+Conditions after timestep 384 (time = 12.000000):
+
+     Center of Mass:   (-1.657333e-07, -7.434314e-08, 7.081061e-09)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288738e-10)
+	Load balance:44 42 151 170 135 157 52 49 
+
+
+Conditions after timestep 512 (time = 16.000000):
+
+     Center of Mass:   (-2.281573e-07, -9.950714e-08, 7.996556e-09)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288738e-10)
+	Load balance:36 37 155 180 137 176 38 41 
+
+
+Conditions after timestep 640 (time = 20.000000):
+
+     Center of Mass:   (-2.905812e-07, -1.246711e-07, 8.912052e-09)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288738e-10)
+	Load balance:38 29 152 192 144 173 33 39 
+
+
+Conditions after timestep 768 (time = 24.000000):
+
+     Center of Mass:   (-3.530052e-07, -1.498351e-07, 9.827547e-09)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288738e-10)
+	Load balance:32 23 169 189 150 179 25 33 
+
+
+Conditions after timestep 896 (time = 28.000000):
+
+     Center of Mass:   (-4.154292e-07, -1.749991e-07, 1.074304e-08)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288738e-10)
+	Load balance:30 22 160 201 150 187 23 27 
+
+
+Conditions after timestep 1024 (time = 32.000000):
+
+     Center of Mass:   (-4.778532e-07, -2.001631e-07, 1.165854e-08)
+     Average Velocity: (-1.560600e-08, -6.291000e-09, 2.288738e-10)
+
+Time for 1024 timesteps with 800 bodies:    1.6654 seconds
