@@ -1,0 +1,17 @@
+result is 1.506750, time elapsed is 69.061127, total cell: 2812500
+
+task 2
+Do not agree with each other. No threadprivate
+area is 1.506708, time elapsed is 66.652212, total cell: 2812500
+area is 1.506754, time elapsed is 66.677376, total cell: 2812500
+area is 1.506890, time elapsed is 66.679375, total cell: 2812500
+
+add threadprivate to it
+thread 1
+
+thread 2
+
+thread 4
+
+thread 8
+
