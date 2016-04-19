@@ -1,0 +1,113 @@
+This directory contains a sample matrix multiplication code in matmul.cu.
+
+Two GPU-equipped nodes have been reserved for class use. These are: 
+
+compute-45-2 and compute-45-3
+
+Each node contains 3 GPUs: one M2090 GPU (Device 0), and two M2070 GPUs (Devices 1 and 2).
+In addition, each contains 16 cores and 128 GB of CPU memory.
+
+To access one of the GPU nodes interactively, you must submit a job as follows:
+
+qsub -I -X -l procs=5,tpn=5,mem=40gb,walltime=1:00:00 -q cpsc424gpu
+
+("-X" is optional, and you may wish to modify the walltime limit. Please do not use more than 5 cores
+or more than 40 GB of memory, since up to 3 students may share a single node.)
+
+THESE 3 NODES ARE SHARED ACCESS (UP TO 3 JOBS AT ONCE), BUT EACH USER MAY ONLY HAVE 1 GPU JOB AT A TIME. 
+
+======================================================================================
+To accommodate the shared access, you must cooperate with your classmates! Here's how:
+
+1. As soon as your session starts on a GPU node, run the following: 
+
+checknode `hostname -s`
+
+
+This command will return information about the node status. Among the output, 
+you'll find a section similar to the following:
+
+Reservations:
+  5129305x1  Job:Running  -00:15:53 -> 3:44:07 (4:00:00)
+  5129329x5  Job:Running  -00:11:13 -> 3:48:47 (4:00:00)
+Jobs:        5129305,5129329
+
+There should be at most 3 jobs listed, and yours should be one of them.
+(Make note of your job number.) If there are more than 3 jobs listed, then all  
+the GPUs are in use, and you should not use this node. (This should "never" happen.) 
+
+
+2. Run the following commands:
+
+cd ~ahs3/cpsc424/gpus/`hostname -s`
+ls -l
+
+For each job in the Reservation list other than yours, you should see a file whose name 
+is the corresponding job number. For each such file, cat that file to find out which GPU 
+device(s) that job is using. Then create a file for your own job (using your job number as the name)
+and enter in it the GPU device number(s) (gpu0, gpu1, and/or gpu2) that you will use.
+Please make sure that you only select GPUs that are not already in use, and only use 1 GPU for your
+job unless you are working on Task 4, which is extra credit. 
+Save your file. Make sure that your new file is world readable by running:
+
+chmod a+rw myfilename
+
+If there are extra files that don't correspond to current reservations, then someone forgot to remove
+their file at the end of their session. You should delete that file---but be certain
+that the corresponding job is no longer active on the GPU node you're using.
+
+
+3. Now return to your own directories to do your work.
+For convenience, you may want to set an environment variable or create a file in your home directory 
+containing the device number (0, 1, or 2). You could then use the contents of the variable or
+file as an input to your program so that you don't have to hard code the device number in your code.
+
+
+4. When you end your job, please delete the job file you created.
+======================================================================================
+
+Once you've completed the steps above, you're ready to go. Start by loading two module files:
+
+module load Langs/Intel/14 Langs/Cuda/7.0
+
+This will set your PATH and LD_LIBRARY_PATH environment variables to find Cuda tools and libraries.
+
+After loading the module files, try running "deviceQuery" to learn more about
+the GPUs installed on the node. NOTE: Neither this command, nor the Makefile will work on non-GPU nodes.
+
+To build the sample code, run
+
+                      make matmul
+
+This make command uses the makefile Makefile, which invokes the nvcc compiler 
+to build the code. 
+
+Once the code is built, you can execute it using:
+
+                      ./matmul <n> <B> <G> <#>
+
+where 
+
+     <n> is the number of rows and columns in the (square) matrices
+
+     <B> is the number of thread rows and columns in a thread block. 
+
+     <G> is the number of block rows and columns in the grid.
+
+     <#> is the device number to use (0, 1, or 2).
+
+So this means that  
+
+     blockDim.x = blockDim.y = <B>
+     blockDim.z = 1
+
+and
+
+     gridDim.x = gridDim.y = <G>
+     gridDim.z = 1
+
+For the sample code, you need to have at least <n> threads in the x and y directions 
+since each thread computes just one entry of the output matrix. The sample code
+checks to make sure that it has a sufficient number of threads
+in the x and y directions to carry out the computation. You may need to modify
+that check for later parts of the assignment.

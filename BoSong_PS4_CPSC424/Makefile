@@ -3,7 +3,9 @@ CFLAGS = -g -O3 -xHost -fno-alias -std=c99
 FC = ifort
 FFLAGS = -g -O3 -xHost -fno-alias
 
-all: serial parallel
+all: serial parallel test 
+test:	test.o /home/fas/hpcprog/ahs3/cpsc424/utils/timing/timing.o
+	$(CC) -o $@ $(CFLAGS) $^
 serial:	serial.o /home/fas/hpcprog/ahs3/cpsc424/utils/timing/timing.o
 	$(CC) -o $@ $(CFLAGS) $^
 
