@@ -1,3 +1,4 @@
+TIMING = /home/fas/hpcprog/ahs3/cpsc424/utils/timing/timing.o
 CUDAPATH = /home/apps/fas/GPU/cuda_7.0.28
 
 NVCC = $(CUDAPATH)/bin/nvcc
@@ -17,7 +18,18 @@ BINARIES = matmul
 matmul: matmul.o
 	$(NVCC) $(GENCODE) $(LFLAGS) -o $@ $<
 
-
+task1: task1.o
+	$(NVCC) $(GENCODE) $(LFLAGS) -o $@ $<
+task2: task2.o
+	$(NVCC) $(GENCODE) $(LFLAGS) -o $@ $<
+task3: task3.o
+	$(NVCC) $(GENCODE) $(LFLAGS) -o $@ $<
+multiGPU: multiGPU.o
+	$(NVCC) $(GENCODE) $(LFLAGS) -o $@ $<
+serial: serial.o $(TIMING)
+	icc -std=c99 -g -O3 -fno-alias -o $@ $^
+.c.o:
+	icc -std=c99 -g -O3 -fno-alias -c $<
 .cu.o:
 	$(NVCC) $(GENCODE) $(NVCCFLAGS) -o $@ -c $<
 

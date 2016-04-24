@@ -1,0 +1,18 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/BoSong_PS6_CPSC424
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+1024 1024 1024
+Time to calculate results on CPU: 2.148199 s.
+2048 2048 2048
+Time to calculate results on CPU: 80.248550 s.
+4096 4096 4096
+Time to calculate results on CPU: 898.098259 s.
+8192 8192 8192
+=>> PBS: job killed: walltime 1805 exceeded limit 1800
