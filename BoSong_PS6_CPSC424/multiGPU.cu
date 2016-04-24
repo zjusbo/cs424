@@ -6,8 +6,8 @@
 
 #define FP float
 #define TW 32
-#define N 1
-#define DEVCOUNT 1
+#define N 4
+#define DEVCOUNT 2
 
 __global__ void gpu_matrixmult(FP *a,FP *b, FP *c, int n, int p, int m) {
 
@@ -62,10 +62,10 @@ int main(int argc, char *argv[]) {
 
   int n, p, m; // matrix dimension
   FP *a,*b,*c_part[DEVCOUNT], *c;
-  FP *dev_a, *dev_b, *dev_c;
+  FP *dev_a[DEVCOUNT], *dev_b[DEVCOUNT], *dev_c[DEVCOUNT];
   int size_a, size_b, size_c; // number of bytes in arrays
 
-  cudaEvent_t start[DEVCOUNT], stop[DEVCOUNT]; // using cuda events to measure time
+  cudaEvent_t start, stop; // using cuda events to measure time
   float elapsed_time_ms; // which is applicable for asynchronous code also
   cudaError_t errorcode;
 
@@ -94,8 +94,8 @@ int main(int argc, char *argv[]) {
     printf("Error, too many threads in block\n");
 //    exit (-1);
   }
-  Grid_Dim_x = ((m + Block_Dim - 1) / Block_Dim  + N - 1) / N; 
-  Grid_Dim_y = (n/2 + Block_Dim - 1) / Block_Dim; // divide gride by 2 vertically
+  Grid_Dim_x = (m / Block_Dim  + N - 1) / N; 
+  Grid_Dim_y = (n / DEVCOUNT ) / Block_Dim; // divide gride by 2 vertically
 
   if (argc==6) {
     gpunum = atoi(argv[5]); // Device number
@@ -117,10 +117,10 @@ int main(int argc, char *argv[]) {
   size_c = n * m * sizeof(FP);
   a = (FP*) malloc(size_a); // dynamically allocated memory for arrays on host
   b = (FP*) malloc(size_b);
+  c = (FP*) malloc(size_c);
   for(int i = 0; i < DEVCOUNT; i++){
     c_part[i] = (FP*) malloc(size_c / DEVCOUNT);  
   }
-  c = (FP*) malloc(size_c);
   srand(12345);
   // int p = n; //Used here only to illustrate proper initialization for non-square case
   for(i=0;i < n;i++)
@@ -139,34 +139,35 @@ int main(int argc, char *argv[]) {
   // allocate space
   for(int i = 0; i < DEVCOUNT; i++){
     cudaSetDevice(i);
-    cudaMalloc((void**)&dev_a, size_a / DEVCOUNT); // allocate memory on device
-    cudaMalloc((void**)&dev_b, size_b);
-    cudaMalloc((void**)&dev_c, size_c / DEVCOUNT);
+    cudaMalloc((void**)&dev_a[i], size_a / DEVCOUNT); // allocate memory on device
+    cudaMalloc((void**)&dev_b[i], size_b);
+    cudaMalloc((void**)&dev_c[i], size_c / DEVCOUNT);
    
-    cudaMemcpy(dev_a, a + i * n * p / DEVCOUNT, size_a / DEVCOUNT ,cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_b, b , size_b ,cudaMemcpyHostToDevice);
+    cudaMemcpyAsync(dev_a[i], a + i * n * p / DEVCOUNT, size_a / DEVCOUNT ,cudaMemcpyHostToDevice);
+    cudaMemcpyAsync(dev_b[i], b , size_b ,cudaMemcpyHostToDevice);
 
-    cudaEventCreate(&start[i]); // instrument code to measure start time
-    cudaEventCreate(&stop[i]);
   }
 
   // run kernel
+  cudaSetDevice(0);
+  cudaEventCreate(&start); // instrument code to measure start time
+  cudaEventCreate(&stop);
+  cudaEventRecord(start, 0); 
   for(int i = 0; i < DEVCOUNT; i++){
     cudaSetDevice(i);
-    cudaEventRecord(start[i], 0); 
-    gpu_matrixmult<<<Grid,Block>>>(dev_a,dev_b,dev_c,n / 2, p, m); // compute the left part of matrix
-    cudaEventRecord(stop[i], 0); // instrument code to measure end time
+    gpu_matrixmult<<<Grid,Block>>>(dev_a[i],dev_b[i],dev_c[i],n / DEVCOUNT, p, m); // compute the left part of matrix
   } 
 
   // wait for completion
-  for(int i = 0; i < DEVCOUNT; i++){
-    cudaEventSynchronize(stop[i]);
-  }
-  cudaEventElapsedTime(&elapsed_time_ms, start[0], stop[0] );
+  cudaSetDevice(0);
+  cudaEventRecord(stop, 0); // instrument code to measure end time
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsed_time_ms, start, stop);
 
   // copy result back to host
   for(int i = 0; i < DEVCOUNT; i++){
-    cudaMemcpy(c_part[i],dev_c, size_c / DEVCOUNT,cudaMemcpyDeviceToHost);
+    cudaSetDevice(i);
+    cudaMemcpy(c_part[i],dev_c[i], size_c / DEVCOUNT,cudaMemcpyDeviceToHost);
   }
 
   // merge results
@@ -178,14 +179,14 @@ int main(int argc, char *argv[]) {
   // ------------- COMPUTATION DONE ON HOST CPU ----------------------------
   // DEBUGGING USE ONLY (AND FOR LIMITED NUMBERS OF TIMING RUNS)
 
-  cudaEventRecord(start[0], 0); // use same timing
+  cudaEventRecord(start, 0); // use same timing
   // cudaEventSynchronize(start); // not needed
 
   cpu_matrixmult(a,b,c, n, p, m); // do calculation on host (NOTE: This computes the diff with GPU result.)
 
-  cudaEventRecord(stop[0], 0); // instrument code to measue end time
-  cudaEventSynchronize(stop[0]);
-  cudaEventElapsedTime(&elapsed_time_ms, start[0], stop[0] );
+  cudaEventRecord(stop, 0); // instrument code to measue end time
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsed_time_ms, start, stop );
 
   printf("Time to calculate results on CPU: %f ms.\n", elapsed_time_ms); // exec. time
 
@@ -214,12 +215,12 @@ int main(int argc, char *argv[]) {
   free(c);
   for(int i = 0; i < DEVCOUNT; i++){
     free(c_part[i]);
-    cudaEventDestroy(start[i]);
-    cudaEventDestroy(stop[i]);
+    cudaFree(dev_a[i]);
+    cudaFree(dev_b[i]);
+    cudaFree(dev_c[i]);
   }
-  cudaFree(dev_a);
-  cudaFree(dev_b);
-  cudaFree(dev_c);
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
 
   return 0;

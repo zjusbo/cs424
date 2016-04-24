@@ -13,7 +13,7 @@ GENCODE = $(GENCODE_SM20)
 
 .SUFFIXES : .cu .ptx
 
-BINARIES = matmul
+BINARIES = matmul task1 task2 task3 serial multiGPU
 
 matmul: matmul.o
 	$(NVCC) $(GENCODE) $(LFLAGS) -o $@ $<
