@@ -12,14 +12,14 @@ void cpu_matrixmult(FP *a,FP *b, FP *c, int n, int p, int m) {
 
   int index, indexa, indexb;
   FP cvalue;
-  for(int col=0;col < m; col++)
-    for(int row=0;row < n; row++) {
-      indexb = col;
-      index = row * m + col;
-      cvalue = 0.;
-      for (indexa = row*p; indexa < (row*p + p); indexa++, indexb+=m) 
-	cvalue += a[indexa]*b[indexb];
-      c[index] -= cvalue; //NOTE: This calculates the diff between CPU and GPU computations.
+  for(int i = 0; i < n; i++)
+    for(int j = 0; j < m; j++)
+      c[m * i + j] = 0.0;
+  for(int k=0; k < p; k++)
+    for(int i=0; i < n; i++) {
+      FP r = a[i * p + k];
+      for (int j = 0; j < m; j++) 
+        c[i * m + j] += r * b[k * m + j];
     }
 }
 
