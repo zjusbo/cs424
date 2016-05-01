@@ -203,7 +203,7 @@ int main(int argc, char **argv ) {
   readSource(sourceFile);
   // print_adj_list(adj_listhead, N);
   #pragma omp parallel
-  #pragma omp for schedule(static, 10)
+  #pragma omp for schedule(guided)
   for(int i = 0; i < num_sources; i++){
   //  if(DEBUG)
 //    printf("Computing source %d\n", sources[i]);
@@ -212,4 +212,14 @@ int main(int argc, char **argv ) {
   timing(&wct1, &cput); //get the end time
   total_time = wct1 - wct0;
   printf("Message printed by master: Total elapsed time is %f seconds.\n",total_time);
+  // free resources
+  for(int i = 1; i <= N; i++){
+    adj_node* node = adj_listhead[i];
+    while(node){
+      adj_node* next = node->next;
+      free(node);
+      node = next;
+    }
+  }
+  free(sources);
 }

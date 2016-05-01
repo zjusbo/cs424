@@ -216,6 +216,15 @@ int main(int argc, char **argv ) {
 //      printf("Computing source %d\n", sources[i]);
     moore(sources[i]);
   }
+  for(int i = 1; i <=N; i++){
+    adj_node* node = adj_listhead[i];
+    while(node){
+      adj_node* next = node->next;
+      free(node);
+      node = next;
+    }
+  }
+  free(sources);
   timing(&wct1, &cput); //get the end time
   total_time = wct1 - wct0;
   printf("Message printed by master: Total elapsed time is %f seconds.\n",total_time);
