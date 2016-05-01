@@ -22,12 +22,18 @@ pwd
 cat $PBS_NODEFILE
 
 # Run the program 3 times
-export OMP_NUM_THREADS=1
-./parallel_lock_single Random4-n.10.0.gr Random4-n.10.0.ss
-export OMP_NUM_THREADS=2
-./parallel_lock_single Random4-n.10.0.gr Random4-n.10.0.ss
-export OMP_NUM_THREADS=4
-./parallel_lock_single Random4-n.10.0.gr Random4-n.10.0.ss
-export OMP_NUM_THREADS=8
-./parallel_lock_single Random4-n.10.0.gr Random4-n.10.0.ss
+
+for i in 1 2 4 8
+do
+	export OMP_NUM_THREADS=$i
+	echo Square-n.10.0
+	./serial ch9-1.1/inputs/Square-n/Square-n.10.0.gr ch9-1.1/inputs/Square-n/Square-n.10.0.ss
+done
+exit
+
+echo USA-road-d.NE
+./serial ch9-1.1/inputs/USA-road-d/USA-road-d.NE.gr ch9-1.1/inputs/USA-road-d/USA-road-d.NE.ss
+
+echo USA-road-d.NY
+./serial ch9-1.1/inputs/USA-road-d/USA-road-d.NY.gr ch9-1.1/inputs/USA-road-d/USA-road-d.NY.ss
 exit
