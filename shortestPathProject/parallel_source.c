@@ -15,8 +15,6 @@ typedef struct s_adj_node{
   struct s_adj_node* next;
 } adj_node;
 
-
-
 /*Moore's Algorithm*/
 int N; // number of vertices
 int* sources; // source node
@@ -62,7 +60,7 @@ int moore(int source){
   bool* isInQueue;
   // Initialize
   dist =(int *) malloc((N+1) * sizeof(int));     
-  isInQueue =(bool *) malloc((N+1) * sizeof(int));     
+  isInQueue =(bool *) malloc((N+1) * sizeof(bool));     
   for(int i = 1; i <= N; i++) dist[i] = INF;
   for(int i = 1; i <= N; i++) isInQueue[i] = false;
   q_init(&q);
@@ -70,7 +68,6 @@ int moore(int source){
   isInQueue[source] = true;
   q_enqueue(source, &q); 
   // Loop over entries in queue
-  while(true){
 //  #pragma omp parallel shared(dist, adj_listhead, q) 
 //  #pragma omp single
   while(!q_isEmpty(&q)){
@@ -85,15 +82,13 @@ int moore(int source){
   } // All done
   // implicit barrier
   // all tasks should be finished below this line
-  if(q_isEmpty(&q))
-    break;
-  }
   if(DEBUG){
     printf("source = %d, ", source);
     printf("%d %d %d", dist[1], dist[N-1], dist[N]);
     printf("\n");
   }
   free(dist);
+  free(isInQueue);
 }
 
 void adj_list_add(int vertex, int weight, adj_node** adj_head){
@@ -208,7 +203,7 @@ int main(int argc, char **argv ) {
   readSource(sourceFile);
   // print_adj_list(adj_listhead, N);
   #pragma omp parallel
-  #pragma omp for schedule(dynamic)
+  #pragma omp for schedule(static, 10)
   for(int i = 0; i < num_sources; i++){
   //  if(DEBUG)
 //    printf("Computing source %d\n", sources[i]);
