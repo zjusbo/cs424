@@ -1,13 +1,12 @@
 #define _GNU_SOURCE
 #include <stdio.h>
-
 #include <string.h>
 #include <stddef.h> 
 #include <stdlib.h> 
 #include <unistd.h> 
+#include <omp.h>
 #include "queue.h"
 #include "/home/fas/hpcprog/ahs3/cpsc424/utils/timing/timing.h"
-
 #define DEBUG 0
 #define INF -1
 
@@ -17,21 +16,51 @@ typedef struct s_adj_node{
   struct s_adj_node* next;
 } adj_node;
 
-
-
 /*Moore's Algorithm*/
 int N; // number of vertices
 int* sources; // source node
 int num_sources;
-
-int loopCount = 0, updateCount = 0;
+long long loopCount[8], updateCount[8];
 adj_node** adj_listhead;
+
+void process(int vi, int* dist, queue* pq, bool* isInQueue, long long* thisLoopCount, long long* thisUpdateCount){
+  adj_node* vj_p = adj_listhead[vi];
+  
+  // Loop over edges out of vi
+  while(vj_p){
+    int vj = vj_p -> vertex;
+    int newdist_vj;
+    bool needToUpdate;
+      
+    // Do this if new distance is smaller
+//    #pragma omp critical(dist)
+    { 
+      newdist_vj = dist[vi] + vj_p->weight;// new distance throught vi
+      needToUpdate = (newdist_vj < dist[vj]) || (dist[vj] == INF); 
+    }
+    (*thisLoopCount)++;
+    {
+    if(needToUpdate){
+//      #pragma omp critical(dist)
+      (*thisUpdateCount)++;
+      dist[vj] = newdist_vj;
+//      #pragma omp critical(queue)
+      if(isInQueue[vj] == false){
+        q_enqueue(vj, pq);
+        isInQueue[vj] = true;
+      }
+    }
+    vj_p = vj_p -> next;
+    }
+  }
+}
 
 int moore(int source){
   // distance between source vertex and current vertex
   int* dist;
-  bool* isInQueue;
   queue q;
+  bool* isInQueue;
+  long long thisLoopCount = 0, thisUpdateCount = 0;
   // Initialize
   dist =(int *) malloc((N+1) * sizeof(int));     
   isInQueue =(bool *) malloc((N+1) * sizeof(bool));     
@@ -39,37 +68,32 @@ int moore(int source){
   for(int i = 1; i <= N; i++) isInQueue[i] = false;
   q_init(&q);
   dist[source] = 0;
-  q_enqueue(source, &q); 
   isInQueue[source] = true;
+  q_enqueue(source, &q); 
   // Loop over entries in queue
+//  #pragma omp parallel shared(dist, adj_listhead, q) 
+//  #pragma omp single
   while(!q_isEmpty(&q)){
-    int vi = q_dequeue(&q);
+    int vi;
+//    #pragma omp critical(queue)
+    vi = q_dequeue(&q);
     isInQueue[vi] = false;
-    adj_node* vj_p = adj_listhead[vi];
-    
-    // Loop over edges out of vi
-    while(vj_p){
-      int vj = vj_p -> vertex;
-      int newdist_vj = dist[vi] + vj_p->weight;// new distance throught vi
-      
-      loopCount++;
-      // Do this if new distance is smaller
-      if((newdist_vj < dist[vj]) || (dist[vj] == INF)){
-        updateCount++;
-        dist[vj] = newdist_vj;
-        if(isInQueue[vj] == false){
-          q_enqueue(vj, &q);
-          isInQueue[vj] = true;
-        }
-      }
-      vj_p = vj_p -> next;
+//    #pragma omp task 
+    {
+      process(vi, dist, &q, isInQueue, &thisLoopCount, &thisUpdateCount);
     }
-    // Done with vi!
   } // All done
+  // implicit barrier
+  // all tasks should be finished below this line
   if(DEBUG){
-    printf("Source = %d, %d %d %d\n", source, dist[1], dist[N-1], dist[N]);
+    printf("source = %d, ", source);
+    printf("%d %d %d", dist[1], dist[N-1], dist[N]);
+    printf("\n");
   }
   free(dist);
+  free(isInQueue);
+  loopCount[omp_get_thread_num()] += thisLoopCount;
+  updateCount[omp_get_thread_num()] += thisUpdateCount;
 }
 
 void adj_list_add(int vertex, int weight, adj_node** adj_head){
@@ -82,33 +106,19 @@ void adj_list_add(int vertex, int weight, adj_node** adj_head){
    }
    *adj_head = node;
 }
+
 void print_adj_list(adj_node** adj_head, int n){
-  int min, max, sum;
-  bool bprint;
-  sum = 0;
-  min = n;
-  max = 0;
   for(int i = 1; i <= n; i++){
-    if(i <= 1024 || i > n - 1024){
-      bprint = true;
-    }else{
-      bprint = false;
+    printf("%d: ", i);
+    adj_node * node = adj_head[i];
+    while(node != NULL){
+      printf("%d -> ", node->vertex);
+      node = node -> next;
     }
-    if(bprint)  printf("%d: ", i);
-      adj_node * node = adj_head[i];
-      int length = 0;
-      while(node != NULL){
-        length++;
-      if(bprint)  printf("%d -> ", node->vertex);
-        node = node -> next;
-      }
-    if(bprint)  printf("NULL\n");
-    if(length > max) max = length;
-    if(length < min) min = length;
-    sum += length;
+    printf("NULL\n");
   }
-  printf("N = %d, min length = %d, max length = %d, avg length = %f\n", N, min, max, (float)sum / N);
 }
+
 void readGraph(char* filename){
  FILE* fp;
  int num_nodes, num_edges;
@@ -168,6 +178,7 @@ bool readSource(char* filename){
   fclose(fp);
   free(line);
 }
+
 int main(int argc, char **argv ) {
 
   /*
@@ -182,6 +193,12 @@ int main(int argc, char **argv ) {
 
   double wct0, wct1, total_time, cput;
   char* sourceFile, * graphFile;
+  int count[8];
+  #pragma omp parallel  
+  printf("num of threads = %d\n", omp_get_num_threads());
+  for(int i = 0; i < 8; i++) count[i] = 0;
+  for(int i = 0; i < 8; i++) loopCount[i] = 0;
+  for(int i = 0; i < 8; i++) updateCount[i] = 0;
   if(argc != 3){
     printf("serial <graphfile> <sourcefile>\n");
     return -1;
@@ -191,17 +208,35 @@ int main(int argc, char **argv ) {
   timing(&wct0, &cput);  
   printf("reading graph...\n");
   readGraph(graphFile);
-  //print_adj_list(adj_listhead, N);
   printf("reading source...\n");
   readSource(sourceFile);
-//  print_adj_list(adj_listhead, N);
+  // print_adj_list(adj_listhead, N);
+  #pragma omp parallel
+  #pragma omp for schedule(static, 1)
   for(int i = 0; i < num_sources; i++){
-    // printf("Computing source %d\n", sources[i]);
+    count[omp_get_thread_num()]++;
     moore(sources[i]);
   }
   timing(&wct1, &cput); //get the end time
   total_time = wct1 - wct0;
-  double portion = (double)updateCount / loopCount;
-  printf("portion(update/loop) = %f\n", portion);
   printf("Message printed by master: Total elapsed time is %f seconds.\n",total_time);
+  // free resources
+  for(int i = 1; i <= N; i++){
+    adj_node* node = adj_listhead[i];
+    while(node){
+      adj_node* next = node->next;
+      free(node);
+      node = next;
+    }
+  }
+  printf("Load balance among threads: ");
+  long long sumLoop = 0, sumUpdate = 0;
+  for(int i = 0; i < 8; i++){
+    printf("%d ", count[i]);
+    sumLoop += loopCount[i];
+    sumUpdate += updateCount[i];
+  }
+  printf("portion = %f", (float)sumUpdate / sumLoop);
+  printf("\n");
+  free(sources);
 }

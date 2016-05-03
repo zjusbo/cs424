@@ -1,0 +1,71 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/shortestPathProject
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+Long-C.10.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 432.844449 seconds.
+Long-n.20.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 1194.280254 seconds.
+Random4-C.12.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 6.189056 seconds.
+Random4-n.20.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 10.970160 seconds.
+Square-C.12.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 24.135612 seconds.
+Square-n.20.0

@@ -1,0 +1,24 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/shortestPathProject
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+single_lock
+Square-C.12.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 620.799626 seconds.
+Thread load balance: 24085616 48892043 36148343 38508965 45701538 47783378 45172611 44064968 

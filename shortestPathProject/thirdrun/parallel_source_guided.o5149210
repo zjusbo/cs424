@@ -1,0 +1,109 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/shortestPathProject
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+parallel_source_guided
+Long-C.10.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 463.353357 seconds.
+Long-n.10.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 1.120882 seconds.
+Long-n.20.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 1146.891252 seconds.
+Random4-C.12.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 6.338901 seconds.
+Random4-n.20.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 10.846500 seconds.
+Square-C.12.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 23.750918 seconds.
+Square-n.10.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 0.718555 seconds.
+Square-n.20.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 79.844480 seconds.
+USA-road-d.NE
+=>> PBS: job killed: walltime 1809 exceeded limit 1800

@@ -1,0 +1,92 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/shortestPathProject
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+Random4-C.0.0
+num of threads = 1
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 27.763245 seconds.
+Random4-C.0.0
+num of threads = 2
+num of threads = 2
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 39.976416 seconds.
+Random4-C.0.0
+num of threads = 4
+num of threads = 4
+num of threads = 4
+num of threads = 4
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 47.379422 seconds.
+Random4-C.0.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 61.364579 seconds.
+Random4-n.10.0
+num of threads = 1
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 13.099556 seconds.
+Random4-n.10.0
+num of threads = 2
+num of threads = 2
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 78.449943 seconds.
+Random4-n.10.0
+num of threads = 4
+num of threads = 4
+num of threads = 4
+num of threads = 4
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 88.132950 seconds.
+Random4-n.10.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 118.533700 seconds.
+Square-C.0.0
+reading graph...
+reading source...
+portion(update/loop) = -0.754299
+Message printed by master: Total elapsed time is 218.313098 seconds.
+Square-C.0.0
+reading graph...
+reading source...
+portion(update/loop) = -0.754299
+Message printed by master: Total elapsed time is 251.899829 seconds.
+Square-C.0.0
+reading graph...
+reading source...
+portion(update/loop) = -0.754299
+Message printed by master: Total elapsed time is 214.043253 seconds.
+Square-C.0.0
+reading graph...
+reading source...
+portion(update/loop) = -0.754299
+Message printed by master: Total elapsed time is 225.126130 seconds.

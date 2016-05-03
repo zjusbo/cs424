@@ -33,7 +33,7 @@ for i in 1 2 4 8
 do
 	export OMP_NUM_THREADS=$i
 	echo Long-n.10.0
-	./serial ch9-1.1/inputs/Long-n/Long-n.10.0.gr ch9-1.1/inputs/Long-n/Long-n.10.0.ss
+	./parallel_lock_single ch9-1.1/inputs/Long-n/Long-n.10.0.gr ch9-1.1/inputs/Long-n/Long-n.10.0.ss
 done
 exit
 

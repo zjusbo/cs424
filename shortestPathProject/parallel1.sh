@@ -23,17 +23,10 @@ cat $PBS_NODEFILE
 
 # Run the program 3 times
 
-for i in 1 2 4 8
-do
-	export OMP_NUM_THREADS=$i
-	echo Square-n.10.0
-	./serial ch9-1.1/inputs/Square-n/Square-n.10.0.gr ch9-1.1/inputs/Square-n/Square-n.10.0.ss
-done
+export OMP_NUM_THREADS=4
+echo single_lock
+echo Random4-C.12.0
+./parallel_lock_single ch9-1.1/inputs/Random4-C/Random4-C.12.0.gr ch9-1.1/inputs/Random4-C/Random4-C.12.0.ss
 exit
 
-echo USA-road-d.NE
-./serial ch9-1.1/inputs/USA-road-d/USA-road-d.NE.gr ch9-1.1/inputs/USA-road-d/USA-road-d.NE.ss
 
-echo USA-road-d.NY
-./serial ch9-1.1/inputs/USA-road-d/USA-road-d.NY.gr ch9-1.1/inputs/USA-road-d/USA-road-d.NY.ss
-exit

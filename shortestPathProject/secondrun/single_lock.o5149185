@@ -1,0 +1,41 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/shortestPathProject
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+Square-n.10.0
+num of threads = 1
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 15.210715 seconds.
+Square-n.10.0
+num of threads = 2
+num of threads = 2
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 94.917529 seconds.
+Square-n.10.0
+num of threads = 4
+num of threads = 4
+num of threads = 4
+num of threads = 4
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 105.552644 seconds.
+Square-n.10.0
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+num of threads = 8
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 138.371367 seconds.

@@ -26,14 +26,14 @@ for i in 1 2 4 8
 do
 	export OMP_NUM_THREADS=$i
 	echo Random4-C.0.0
-	./serial ch9-1.1/inputs/Random4-C/Random4-C.0.0.gr ch9-1.1/inputs/Random4-C/Random4-C.0.0.ss
+	./parallel_lock_single ch9-1.1/inputs/Random4-C/Random4-C.0.0.gr ch9-1.1/inputs/Random4-C/Random4-C.0.0.ss
 done
 
 for i in 1 2 4 8
 do
 	export OMP_NUM_THREADS=$i
 	echo Random4-n.10.0
-	./serial ch9-1.1/inputs/Random4-n/Random4-n.10.0.gr ch9-1.1/inputs/Random4-n/Random4-n.10.0.ss
+	./parallel_lock_single ch9-1.1/inputs/Random4-n/Random4-n.10.0.gr ch9-1.1/inputs/Random4-n/Random4-n.10.0.ss
 done
 
 

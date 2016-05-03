@@ -1,0 +1,17 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/shortestPathProject
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+Long-n.10.0
+reading graph...
+reading source...
+portion(update/loop) = 0.313893
+Message printed by master: Total elapsed time is 7.855641 seconds.
+Long-n.20.0
+=>> PBS: job killed: walltime 1811 exceeded limit 1800

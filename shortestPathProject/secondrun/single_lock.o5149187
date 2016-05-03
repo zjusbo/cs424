@@ -1,0 +1,25 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/shortestPathProject
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+compute-20-1
+USA-road-d.NY
+num of threads = 1
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 228.590015 seconds.
+USA-road-d.NY
+num of threads = 2
+num of threads = 2
+reading graph...
+reading source...
+Message printed by master: Total elapsed time is 741.262657 seconds.
+USA-road-d.NY
+=>> PBS: job killed: walltime 1822 exceeded limit 1800
+/var/spool/torque/mom_priv/jobs/5149187.rocks.omega.hpc.yale.internal.SC: line 26:  6227 Terminated              ./parallel_lock_single ch9-1.1/inputs/USA-road-d/USA-road-d.NY.gr ch9-1.1/inputs/USA-road-d/USA-road-d.NY.ss
+USA-road-d.NY

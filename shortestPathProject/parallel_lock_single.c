@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h> 
@@ -23,6 +24,7 @@ int num_sources;
 
 omp_lock_t dist_lock, queue_lock;
 adj_node** adj_listhead;
+int count[8];
 
 void process(int vi, int* dist, queue* pq, bool* isInQueue){
   adj_node* vj_p = adj_listhead[vi];
@@ -80,6 +82,7 @@ int moore(int source){
     omp_unset_lock(&queue_lock);
     #pragma omp task 
     {
+      count[omp_get_thread_num()]++;
       process(vi, dist, &q, isInQueue);
     }
   } // All done
@@ -194,6 +197,7 @@ int main(int argc, char **argv ) {
 
   double wct0, wct1, total_time, cput;
   char* sourceFile, * graphFile;
+  for(int i = 0; i < 8; i++) count[i] = 0;
   #pragma omp parallel
   printf("num of threads = %d\n", omp_get_num_threads());
   if(argc != 3){
@@ -228,4 +232,9 @@ int main(int argc, char **argv ) {
   timing(&wct1, &cput); //get the end time
   total_time = wct1 - wct0;
   printf("Message printed by master: Total elapsed time is %f seconds.\n",total_time);
+  printf("Thread load balance: ");
+  for(int i = 0; i < 8; i++){
+    printf("%d ", count[i]);
+  }
+  printf("\n");
 }

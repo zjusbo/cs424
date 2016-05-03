@@ -1,0 +1,25 @@
+/lustre/home/client/fas/cpsc424/bs744
+/lustre/home/client/fas/cpsc424/bs744/cs424/shortestPathProject
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+compute-14-16
+Square-n.20.0
+reading graph...
+reading source...
+portion(update/loop) = 1.484287
+Message printed by master: Total elapsed time is 455.509450 seconds.
+USA-road-d.NE
+reading graph...
+reading source...
+portion(update/loop) = -0.067253
+Message printed by master: Total elapsed time is 786.805953 seconds.
+USA-road-d.NY
+reading graph...
+reading source...
+portion(update/loop) = -0.530858
+Message printed by master: Total elapsed time is 104.574302 seconds.

@@ -4,6 +4,7 @@
 bool q_isEmpty(queue* q){
   return (q -> head == NULL) && (q -> tail == NULL);
 }
+
 void q_init(queue * q){
   q->head = q->tail = NULL;
 }
@@ -20,6 +21,7 @@ void q_enqueue(int elem, queue * q){
     q -> tail = node;
   }
 }
+
 int q_dequeue(queue * q){
   int elem;
   if(q_isEmpty(q)){
